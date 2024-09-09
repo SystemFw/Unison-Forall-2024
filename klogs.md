@@ -2,7 +2,7 @@
 title: KLogs
 author: Fabio Labella (SystemFw)
 theme: solarized
-highlightTheme: solarized-light
+<!-- highlightTheme: solarized-light -->
 revealOptions:
   transition: slide
   slideNumber: false
@@ -24,7 +24,7 @@ Distributed streaming on Unison Cloud
 
 ## Plan
 
-```C
+```haskell
 foo : Bar ->{Remote} Baz
 foo = do
  printLine "world"
