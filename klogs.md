@@ -2,7 +2,7 @@
 title: KLogs
 author: Fabio Labella (SystemFw)
 theme: solarized
-<!-- highlightTheme: solarized-light -->
+highlightTheme: solarized-light
 revealOptions:
   transition: slide
   slideNumber: false
@@ -24,13 +24,19 @@ Distributed streaming on Unison Cloud
 
 ## Plan
 
-```haskell
+```unison
 foo : Bar ->{Remote} Baz
 foo = do
+ a = readLine()
  printLine "world"
  
 ability Yo where
   foo: Nat
+  
+type Foo = Bar Nat | Baz Text
+
+bar = do
+  Cloud.run.local Environment.default() do
 ```
 
 Notes:
