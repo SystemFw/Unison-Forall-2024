@@ -24,20 +24,13 @@ Distributed streaming on Unison Cloud
 
 ## Plan
 
-```unison
+```C
 foo : Bar ->{Remote} Baz
 foo = do
  printLine "world"
  
 ability Yo where
   foo: Nat
-```
-```scala
-def foo = 1
-```
-
-```java
-int a = 3;
 ```
 
 Notes:
