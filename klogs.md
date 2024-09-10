@@ -2,7 +2,7 @@
 title: KLogs
 author: Fabio Labella (SystemFw)
 theme: solarized
-highlightTheme: solarized-light
+highlightTheme: atom-one-light
 revealOptions:
   transition: slide
   slideNumber: false
