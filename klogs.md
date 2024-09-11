@@ -84,7 +84,7 @@ missing features, unoptimised paths, etc.
 type KLog k v = ...
 ```
 
-- &shy;<!-- .element: class="fragment" --> An infinite sequence of key-value pairs.
+- &shy;<!-- .element: class="fragment" --> An infinite sequence of key-value pairs (messages).
 - &shy;<!-- .element: class="fragment" --> Values for a given key are in FIFO order.
 - &shy;<!-- .element: class="fragment" --> Values for different keys are independent and unordered.
 
@@ -110,28 +110,40 @@ ability Pipeline where
 
 Notes:
 
-Let's look at the Pipeline ability, which is how you write logic over KLogs.
-As you can say it only 
+Let's look at the Pipeline ability, which is how you write logic over
+KLogs. It only has 4 ops: merge, partition, loop and sink.
+
+Merge takes a bunch of KLogs, and merges them into one by emitting
+messages as soon as they arrive.
+
+Partition takes a KLog k v and transforms it into a KLog k2 v, i.e it
+reroutes messages by changing their key. Remember that messages with
+the same key will be in FIFO order, so partition essentially group
+messages for later linear processing.
+
+It does so with this function that computes a new key for a message,
+and it returns Optional because you can also decide to simply filter
+out the message by returning None.
+
+Linear processing is done with the loop function, which is a stateful
+transformation of the values of a KLog. Loop executes sequentially
+over the values for a given key, and concurrently across different
+keys.
+
+It takes an initial per-key state, and a function that given a key
+value pair and the old state, returns a new state, and publishes zero,
+one, or more messages. You can look at it as a fold which acts per
+key.
+
+Finally, sink lets you perform side-effects at the end of a Pipeline,
+for example to write messages to external storage. We will talk about
+Remote later, but for now think about it as a version of the IO
+ability that works on Unison Cloud.
 
 
 ---
 
-## Test syntax
- 
-```unison
-foo : Bar ->{Remote} Baz
-foo = do
- a = readLine()
- printLine "world"
- 
-ability Yo where
-  foo: Nat
-  
-type Foo = Bar Nat | Baz Text
-
-bar = do
-  Cloud.run.local Environment.default() do
-```
+# End
 
 Notes:
 
