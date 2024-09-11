@@ -12,7 +12,7 @@ revealOptions:
 
 Distributed streaming on Unison Cloud
 
----
+----
  
 ## About me
 
@@ -27,7 +27,7 @@ Unison Computing, so I spend most of my day thinking about Distributed
 Systems design, and bringing it to life on Unison Cloud.
 
 
----
+----
 
 ## Plan
 
@@ -110,6 +110,7 @@ ability Pipeline where
 
 - &shy;<!-- .element: class="fragment" -->Route messages to different keys.
 - &shy;<!-- .element: class="fragment" -->Process each key sequentially, with state.
+- &shy;<!-- .element: class="fragment" -->Different keys are processed concurrently.
 
 
 Notes:
