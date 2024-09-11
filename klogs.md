@@ -296,13 +296,87 @@ detachAt (far pool() here()) do
 - &shy;<!-- .element: class="fragment" -->Unison Cloud comes with a rich set of effects.
 - &shy;<!-- .element: class="fragment" -->We can safely sends programs to another node.
 
+
+----
+
+### The Cloud ability
+
+```unison
+Environment.default : '{Cloud} Environment
+Cloud.submit: Environment -> '{Remote} a ->{Cloud} a
+
+Cloud.run: '{Cloud} a ->{IO, Exception} a
+
+Cloud.run do
+  Cloud.submit Environment.default() myOneOffJob
+```
+
+- *Actual* infrastructure-as-code.
+- Deploying a one-off job is a function call to:
+  ```unison
+  Cloud.submit : '{Remote} a ->{Cloud} a
+  ```
+- What about long-running jobs?
 ----
 
 ### Cloud: deploy api
 
+- &shy;<!-- .element: class="fragment" --> *Actual* infrastructure-as-code:
+  ````unison
+  ability Cloud where
+    ...
+   ```
+- &shy;<!-- .element: class="fragment" --> Submit a one-off job:
+  ```unison
+  Cloud.submit : '{Remote} a ->{Cloud} a
+  ```
+- &shy;<!-- .element: class="fragment" --> Deploy a long-running job:
+  ```
+  type Daemon = ...
+  
+  Daemon.create : Text ->{Cloud} Daemon
+  Daemon.deploy : Daemon -> '{Remote} Void ->{Cloud} ()
+  ```
+- &shy;<!-- .element: class="fragment" --> Run
+  ```unison
+  Cloud.run do
+    Daemon.deploy myDaemon daemonLogic
+  ```
+
+```unison
+Cloud.run.local do
+  Daemon.deploy myDaemon daemonLogic
+```
+----
+- &shy;<!-- .element: class="fragment" --> Deploy a long-running job:
+  ```
+  type Daemon = ...
+  
+  Daemon.create : Text ->{Cloud} Daemon
+  Daemon.deploy : Daemon -> '{Remote} Void ->{Cloud} ()
+  ```
+- &shy;<!-- .element: class="fragment" --> Run
+  ```unison
+  Cloud.run do
+    Daemon.deploy myDaemon daemonLogic
+  ```
+
+```unison
+Cloud.run.local do
+  Daemon.deploy myDaemon daemonLogic
+```
+
 ----
 
 ### Daemons
+
+```unison
+type Daemon = ...
+
+Daemon.create : Text ->{Cloud} Daemon
+Daemon.deploy : 
+  Daemon -> Environment -> '{Remote} Void ->{Cloud} ()
+```
 
 ----
 
