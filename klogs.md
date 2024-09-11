@@ -92,28 +92,50 @@ type KLog k v = ...
 
 ### Api: pipelines
 
-```unison [|1,2|1, 3-6|1,3,5-6|1,3-4|1, 7-11|1,7,10-11|1,7-9|1,12|]
+
+```unison [|1-6|1,5-6|1,3-4|1-6|1, 7-10|1,9-10|1,8|1, 7-10|1, 11|1,12|]
 ability Pipeline where
-  merge : [KLog k v] -> KLog k v
-  partition 
-    : (k -> v -> [k2])
-    -> KLog k v
-    -> KLog k2 v
   loop
     :  s
     -> (s -> k -> v ->{Remote} (s, [v2]))
     -> KLog k v
     -> KLog k v2
+  partition 
+    : (k -> v -> [k2])
+    -> KLog k v
+    -> KLog k2 v
+  merge : [KLog k v] -> KLog k v
   sink : (k -> v ->{Remote} ()) -> KLog k v -> ()
 ```
+
+- &shy;<!-- .element: class="fragment" -->Route messages to different keys.
+- &shy;<!-- .element: class="fragment" -->Process each key sequentially, with state.
 
 
 Notes:
 
 Let's look at the Pipeline ability, which is how you write logic over
-KLogs. It only has 4 ops: merge, partition, loop and sink.
+KLogs.
 
-Merge takes a bunch of KLogs, and merges them into one by emitting
+Remember in a KLog, messages for the same key are in FIFO order, so
+the first operation we can look at is `loop`, which is how you do
+sequential per-key processing. You can see it transforms the values of
+a KLog, and it does via a stateful transformation: it takes an initial
+state, which is _per key_, and then a function that taken the old
+state and a message, and returns the new state for that key and 0, 1
+or more messages to send to the output KLog. `loop` gets called
+sequentially any time there is a new message for a given key, and gets
+called concurrently among different keys.
+
+Since `loop` encodes transformations per-key, you then need a way to route
+messages to different keys, which we can do with `partition`.
+You can see that it transforms the keys of a `KLog`, with a function
+that computes the new key for the message. It returns a list because
+you can filter out the message by returning an empty list, or send
+multiple copies of the input message with different keys.
+
+
+Merge just takes a bunch of KLogs, and merges them into one by emitting
 messages as soon as they arrive.
 
 Partition takes a KLog k v and transforms it into a KLog k2 v, i.e it
@@ -121,22 +143,7 @@ reroutes messages by changing their key. Remember that messages with
 the same key will be in FIFO order, so partition essentially group
 messages for later linear processing.
 
-It does so with this function that computes a new key for a message,
-and it returns a list because you can also decide to simply filter out
-the message by returning an empty list, or send the same message to
-multiple keys.
-
-Linear processing is done with the loop function, which is a stateful
-transformation of the values of a KLog. Loop executes sequentially
-over the values for a given key, and concurrently across different
-keys.
-
-It takes an initial per-key state, and a function that given a key
-value pair and the old state, returns a new state, and publishes zero,
-one, or more messages. You can look at it as a fold which acts per
-key.
-
-Finally, sink lets you perform side-effects at the end of a Pipeline,
+And finally, sink lets you perform side-effects at the end of a Pipeline,
 for example to write messages to external storage. We will talk about
 Remote later, but for now think about it as a version of the IO
 ability that works on Unison Cloud.
@@ -145,19 +152,25 @@ ability that works on Unison Cloud.
 
 ### Api: KLogs
 
-```unison [|1-2,6|1-2,7|1-2,8|]
+
+```unison [|1,6-8|1,6|1,7|1,8|]
 ability KLogs where
-  ...
+  tryDeploy : '{Pipeline} () ->{KLogs} Either Failure ()
+  tryNamed : Text ->{KLogs} Either Failure (KLog k v)
+  tryProduce : k -> v -> KLog k v ->{KLogs} Either Failure ()
 
 KLogs.deploy : '{Pipeline} () ->{KLogs, Exception} ()
 KLogs.named : Text ->{KLogs, Exception} KLog k v
 KLogs.produce : k -> v -> KLog k v ->{KLogs, Exception} ()
 ```
 
+&shy;<!-- .element: class="fragment" --> Handler decides _where_ pipelines are deployed
+
 Notes:
 
 Ok, now we need an api to interact with our pipelines, which is the
-KLogs ability, in a slightly simplified form: 
+KLogs ability.
+Let's look at the helpers which have nicer types:
 - deploy deploys a pipeline to start running it
 - `named` creates or retrieves a named KLog to pass to our pipelines
 - and produce lets us write messages to a KLog, so that we can
@@ -167,7 +180,7 @@ You might be wondering _where_ its the ability deploying pipelines or
 storing klogs, but KLogs is an ability so we can abstract that choice
 away: the appropriate handler will decide.
 
-----o
+----
 
 ### Example
 
@@ -191,16 +204,16 @@ example = do
   KLogs.deploy pipeline
 
   upper |> KLogs.produce "F" 1
-  -- {"type":"OUT","name":"f","count totals":1}  
+  -- {"type":"OUT","name":"f","count totals":1}
 
   upper |> KLogs.produce "M" 3
-  -- {"type":"OUT","name":"m","count totals":3}  
+  -- {"type":"OUT","name":"m","count totals":3}
 
   lower |> KLogs.produce "f" 4
-  -- {"type":"OUT","name":"f","count totals":5}  
+  -- {"type":"OUT","name":"f","count totals":5}
   
-  upper |> KLogs.produce "P" 2
-  -- {"type":"OUT","name":"p","count totals":2}
+  upper |> KLogs.produce "M" 4
+  -- {"type":"OUT","name":"m","count totals":7}
 ```
 
 Notes:
