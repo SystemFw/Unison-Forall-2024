@@ -140,6 +140,74 @@ for example to write messages to external storage. We will talk about
 Remote later, but for now think about it as a version of the IO
 ability that works on Unison Cloud.
 
+----
+
+### Api: KLogs
+
+```unison [|1-2,6|1-2,7|1-2,8|]
+ability KLogs where
+  ...
+
+KLogs.deploy : '{Pipeline} () ->{KLogs, Exception} ()
+KLogs.named : Text ->{KLogs, Exception} KLog k v
+KLogs.produce : k -> v -> KLog k v ->{KLogs, Exception} ()
+```
+
+Notes:
+
+Ok, now we need an api to interact with our pipelines, which is the
+KLogs ability, in a slightly simplified form: 
+- deploy deploys a pipeline to start running it
+- `named` creates or retrieves a named KLog to pass to our pipelines
+- and produce lets us write messages to a KLog, so that we can
+  interact with KLogs from the outside world
+
+You might be wondering _where_ its the ability deploying pipelines or
+storing klogs, but KLogs is an ability so we can abstract that choice
+away: the appropriate handler will decide.
+
+----o
+
+### Example
+
+```unison
+example : '{KLogs, Exception} ()
+example = do
+  upper: KLog Text Nat
+  upper = named "word-counts-uppercase"
+  
+  lower: KLog Text Nat
+  lower = named "word-counts-lowercase"
+  
+  pipeline = do
+    Pipeline.merge [upper, lower]
+    |> Pipeline.partition (k _ -> [Text.toLowercase k])
+    |> Pipeline.loop 0 cases _ counter value ->
+         newCount = counter + value
+         (newCount, [newCount])
+    |> sink printCountJson
+
+  KLogs.deploy pipeline
+
+  upper |> KLogs.produce "F" 1
+  -- {"type":"OUT","name":"f","count totals":1}  
+
+  upper |> KLogs.produce "M" 3
+  -- {"type":"OUT","name":"m","count totals":3}  
+
+  lower |> KLogs.produce "f" 4
+  -- {"type":"OUT","name":"f","count totals":5}  
+  
+  upper |> KLogs.produce "P" 2
+  -- {"type":"OUT","name":"p","count totals":2}
+```
+
+Notes:
+
+We have two key logs, both representing a stream of words with
+respective counts from somewhere, however one KLogs is counting
+uppercase words, the other lowecase, we want to do a case insensitive
+count.
 
 ---
 
