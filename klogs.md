@@ -165,7 +165,7 @@ KLogs.named : Text ->{KLogs, Exception} KLog k v
 KLogs.produce : k -> v -> KLog k v ->{KLogs, Exception} ()
 ```
 
-&shy;<!-- .element: class="fragment" --> Handler decides _where_ pipelines are deployed
+&shy;<!-- .element: class="fragment" --> Handler decides _where_ pipelines are deployed.
 
 Notes:
 
@@ -226,6 +226,109 @@ count.
 
 ---
 
+## Intro to Unison Cloud
+
+- &shy;<!-- .element: class="fragment" -->Computations can move across machines.
+- &shy;<!-- .element: class="fragment" -->Transactional storage.
+- &shy;<!-- .element: class="fragment" -->Long running processes.
+- &shy;<!-- .element: class="fragment" -->Deployments are just code.
+- &shy;<!-- .element: class="fragment" -->... and more!
+
+----
+
+### Remote: concurrent api
+
+```unison  [|1|1-4|1-7|1-11|]
+  sleep: Duration ->{Remote} ()
+
+  spawn: '{Remote} a ->{Remote} Thread
+  cancel: Thread -> Unit
+
+  scope : '{Remote} a ->{Remote} a
+  addFinalizer : (Outcome ->{Remote} ()) ->{Remote} ()
+  
+  Ref.new: a ->{Remote} Ref a
+  Ref.readForCas: Ref a ->{Remote} (Ticket a, a)
+  Ref.cas: Ref a -> Ticket a -> a ->{Remote} Boolean
+
+  Promise.empty : '{Remote} Promise a
+  Promise.read : Promise a ->{Remote} a
+  Promise.write_ : Promise a -> a ->{Remote} ()
+```
+
+----
+
+### Remote: ~~Concurrent~~ Distributed api
+
+```unison [|1|1-5|1-7|]
+type Location g = ...
+
+here : '{Remote} Location {}
+near : Location g -> Location g2 ->{Remote} Location g
+far : Location g -> Location g2  ->{Remote} Location g
+
+detachAt : Location g -> '{g, Remote} a ->{Remote} Thread
+
+type Thread = ... Location.Id
+type Ref a = ... Location.Id
+type Promise a = ... Location.Id
+```
+- &shy;<!-- .element: class="fragment" -->The whole api works across nodes.
+- &shy;<!-- .element: class="fragment" -->We can parallelise by forking _here_.
+- &shy;<!-- .element: class="fragment" --> We can _scale out_ by forking _far_.
+- &shy;<!-- .element: class="fragment" -->Guarantees degrade accordingly.
+
+----
+
+### Remote: Typed Locations
+
+```unison
+type Location g = ...
+
+Cloud.pool : '{Remote} Location {Http, Storage, Log, ...}
+
+detachAt (far pool() here()) do
+  Log.log "Hello from a distant world!"
+  ...
+```
+
+- &shy;<!-- .element: class="fragment" -->Locations are typed with the effects they support.
+- &shy;<!-- .element: class="fragment" -->Unison Cloud comes with a rich set of effects.
+- &shy;<!-- .element: class="fragment" -->We can safely sends programs to another node.
+
+----
+
+### Cloud: deploy api
+
+----
+
+### Daemons
+
+----
+
+### Storage
+
+----
+
+### Storage api
+
+----
+
+### Linear Log
+
+----
+
+### Recap
+
+- &shy;<!-- .element: class="fragment" --> **Remote**: concurrent & distributed control flow.
+- &shy;<!-- .element: class="fragment" --> **Cloud**: deploy with a function call.
+- &shy;<!-- .element: class="fragment" --> **Daemons**: low level long-running processes.
+- &shy;<!-- .element: class="fragment" --> **Storage**: durable data structures with transactions.
+
+
+
+---
+ 
 # End
 
 Notes:
