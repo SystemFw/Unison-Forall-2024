@@ -96,7 +96,7 @@ type KLog k v = ...
 ability Pipeline where
   merge : [KLog k v] -> KLog k v
   partition 
-    : (k -> v -> Optional k2)
+    : (k -> v -> [k2])
     -> KLog k v
     -> KLog k2 v
   loop
@@ -122,8 +122,9 @@ the same key will be in FIFO order, so partition essentially group
 messages for later linear processing.
 
 It does so with this function that computes a new key for a message,
-and it returns Optional because you can also decide to simply filter
-out the message by returning None.
+and it returns a list because you can also decide to simply filter out
+the message by returning an empty list, or send the same message to
+multiple keys.
 
 Linear processing is done with the loop function, which is a stateful
 transformation of the values of a KLog. Loop executes sequentially
