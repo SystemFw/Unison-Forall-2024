@@ -228,11 +228,21 @@ count.
 
 ## Intro to Unison Cloud
 
-- &shy;<!-- .element: class="fragment" -->Computations can move across machines.
-- &shy;<!-- .element: class="fragment" -->Transactional storage.
-- &shy;<!-- .element: class="fragment" -->Long running processes.
+- &shy;<!-- .element: class="fragment" -->Computations can move across nodes.
 - &shy;<!-- .element: class="fragment" -->Deployments are just code.
+- &shy;<!-- .element: class="fragment" -->Transactional storage.
 - &shy;<!-- .element: class="fragment" -->... and more!
+
+
+Notes:
+
+Ok, at this point we have to take a brief detour to introduce the main
+Unison Cloud features that we will use in our implementation.
+First of all, computation can move across machines without explicit
+serialisation or networking code.
+Deployments are just Unison code, without a separate infrastructure setup.
+And we have an integrated transactional storage layer.
+There's actually a lot more to it, but let's get into it.
 
 ----
 
@@ -256,6 +266,20 @@ count.
   Promise.write_ : Promise a -> a ->{Remote} ()
 ```
 
+Notes:
+We mentioned the Remote ability before, and the first you can look at
+it is as the equivalent of the IO ability, but in the cloud.
+It's basically a concurrency api:
+- you can sleep
+- you can spawn a thread and cancel it
+- you can delimit a scope, and register finalizers in that scope that will run when
+  then code terminates or fails or gets cancelled
+- you can create mutable references that can modified atomically via
+  optimistic concurrency
+- and you can block on a condition by representing it as a one-shot
+  Promise. Reading an empty promise will block, and writing to it will
+  unblock any readers.
+  
 ----
 
 ### Remote: ~~Concurrent~~ Distributed api
@@ -273,10 +297,38 @@ type Thread = ... Location.Id
 type Ref a = ... Location.Id
 type Promise a = ... Location.Id
 ```
-- &shy;<!-- .element: class="fragment" -->The whole api works across nodes.
+- &shy;<!-- .element: class="fragment" -->The whole api Remote works across nodes.
 - &shy;<!-- .element: class="fragment" -->We can parallelise by forking _here_.
 - &shy;<!-- .element: class="fragment" --> We can _scale out_ by forking _far_.
 - &shy;<!-- .element: class="fragment" -->Guarantees degrade accordingly.
+
+Notes:
+
+However, Remote is actually a fully distributed api.
+
+It has this concept of a Location, which can be something like another
+core, but also another machine in a datacentre, or even another
+geographical region.
+
+We'll see what the `g` type parameter is in a bit, but for now note
+how we have an api to retrieve locations.
+
+Then, the main forking combinator, `detachAt`, takes a location to
+fork the code to.
+Not only that, but Thread, Ref and Promise all carry their location.
+
+So, as a result, the whole Remote api works across nodes.
+This means that we can parallelise by forking here.
+But we can also scale out by forking far.
+
+Obviously, guarantees degrade accordingly: for example you can always
+`cancel` a computation on the same node, but might fail to cancel a
+computation far away if there's a network partition.
+We will later see how to exploit the blurred lines between concurrent
+and distributed code.
+succeeds on the same node, but cannot cancel a partitioned node far
+for example finalizers won't run if the node is hit by an asteroid.
+But we'll later see how to exploit this unified api regardless.
 
 ----
 
@@ -296,6 +348,16 @@ detachAt (far pool() here()) do
 - &shy;<!-- .element: class="fragment" -->Unison Cloud comes with a rich set of effects.
 - &shy;<!-- .element: class="fragment" -->We can safely sends programs to another node.
 
+Notes:
+Ok, one more detail about Locations, they are typed with the set of
+abilities they support.
+
+Unison Cloud provides a pool of nodes with a rich set of effects.
+
+And as a result we can safely send programs to another node, in this
+example we're forking to a node far away and logging a message there,
+and the code won't compile if we try to fork to a node that doesn't
+support logging.
 
 ----
 
@@ -304,6 +366,7 @@ detachAt (far pool() here()) do
 ```unison
 Environment.default : '{Cloud} Environment
 Cloud.submit: Environment -> '{Remote} a ->{Cloud} a
+...
 
 Cloud.run: '{Cloud} a ->{IO, Exception} a
 
@@ -311,61 +374,13 @@ Cloud.run do
   Cloud.submit Environment.default() myOneOffJob
 ```
 
-- *Actual* infrastructure-as-code.
-- Deploying a one-off job is a function call to:
-  ```unison
-  Cloud.submit : '{Remote} a ->{Cloud} a
+- Entry point for Unison Cloud.
+- Putting *code* back in infra-as-code.
+- &shy;<!-- .element: class="fragment" -->Supports local testing:
   ```
-- What about long-running jobs?
-----
-
-### Cloud: deploy api
-
-- &shy;<!-- .element: class="fragment" --> *Actual* infrastructure-as-code:
-  ````unison
-  ability Cloud where
-    ...
-   ```
-- &shy;<!-- .element: class="fragment" --> Submit a one-off job:
-  ```unison
-  Cloud.submit : '{Remote} a ->{Cloud} a
+  Cloud.run.local do ...
   ```
-- &shy;<!-- .element: class="fragment" --> Deploy a long-running job:
-  ```
-  type Daemon = ...
-  
-  Daemon.create : Text ->{Cloud} Daemon
-  Daemon.deploy : Daemon -> '{Remote} Void ->{Cloud} ()
-  ```
-- &shy;<!-- .element: class="fragment" --> Run
-  ```unison
-  Cloud.run do
-    Daemon.deploy myDaemon daemonLogic
-  ```
-
-```unison
-Cloud.run.local do
-  Daemon.deploy myDaemon daemonLogic
-```
-----
-- &shy;<!-- .element: class="fragment" --> Deploy a long-running job:
-  ```
-  type Daemon = ...
-  
-  Daemon.create : Text ->{Cloud} Daemon
-  Daemon.deploy : Daemon -> '{Remote} Void ->{Cloud} ()
-  ```
-- &shy;<!-- .element: class="fragment" --> Run
-  ```unison
-  Cloud.run do
-    Daemon.deploy myDaemon daemonLogic
-  ```
-
-```unison
-Cloud.run.local do
-  Daemon.deploy myDaemon daemonLogic
-```
-
+- &shy;<!-- .element: class="fragment" -->What about long-running processes?
 ----
 
 ### Daemons
@@ -378,6 +393,17 @@ Daemon.deploy :
   Daemon -> Environment -> '{Remote} Void ->{Cloud} ()
 ```
 
+- &shy;<!-- .element: class="fragment" -->Serverless long-running processes.
+- &shy;<!-- .element: class="fragment" -->Restarted when underlying infrastructure changes.
+- &shy;<!-- .element: class="fragment" -->One or more instances running at any given time.
+- &shy;<!-- .element: class="fragment" -->Low level.
+
+----
+
+### The idea
+
+We can implement distributed systems by deploying a `Daemon` that spawns `Remote` threads.
+
 ----
 
 ### Storage
@@ -388,7 +414,7 @@ Daemon.deploy :
 
 ----
 
-### Linear Log
+### Linear Log 
 
 ----
 
