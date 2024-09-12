@@ -440,14 +440,40 @@ Database.named : Text ->{Exception, Cloud} Database
 
 ### Linear Log 
 
+```unison
+type LinearLog a = {
+  db: Database
+  index: Table () Nat,
+  values: Table Nat a,
+}
+
+LinearLog.size.tx: LinearLog a ->{Transaction} Nat
+LinearLog.size.tx log = 
+  tryRead.tx (index log) () |> getOrElse 0
+
+LinearLog.add: LinearLog a -> a ->{Storage, Exception} ()
+LinearLog.add log v = transact (db log) do
+    i = size.tx log
+    write.tx (values log) i v
+    write.tx (index log) () (increment i)
+
+LinearLog.from: LinearLog a -> Nat ->{Remote} [a]
+LinearLog.from log start =
+  run p = toRemote do transact (db log) p
+  end = run do size.tx log
+  List.range start end
+    |> Remote.parMap (n -> run do tryRead.tx (values log) n)
+    |> somes
+```
+
 ----
 
 ### Recap
 
-- &shy;<!-- .element: class="fragment" --> **Remote**: concurrent & distributed control flow.
-- &shy;<!-- .element: class="fragment" --> **Cloud**: deploy with a function call.
-- &shy;<!-- .element: class="fragment" --> **Daemons**: low level long-running processes.
-- &shy;<!-- .element: class="fragment" --> **Storage**: durable data structures with transactions.
+- **Remote**: concurrent & distributed control flow.
+- **Cloud**: deploy with a function call.
+- **Daemons**: low level long-running processes.
+- **Storage**: durable data structures with transactions.
 
 
 
