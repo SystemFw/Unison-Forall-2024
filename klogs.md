@@ -297,7 +297,7 @@ type Thread = ... Location.Id
 type Ref a = ... Location.Id
 type Promise a = ... Location.Id
 ```
-- &shy;<!-- .element: class="fragment" -->The whole api Remote works across nodes.
+- &shy;<!-- .element: class="fragment" -->The whole Remote api works across nodes.
 - &shy;<!-- .element: class="fragment" -->We can parallelise by forking _here_.
 - &shy;<!-- .element: class="fragment" --> We can _scale out_ by forking _far_.
 - &shy;<!-- .element: class="fragment" --> We can communicate via Ref+Promise.
@@ -475,9 +475,8 @@ LinearLog.from log start =
 - **Daemons**: low level long-running processes.
 - **Storage**: durable data structures with transactions.
 
-
-
 ---
+
  
 # End
 
