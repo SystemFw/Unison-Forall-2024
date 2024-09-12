@@ -300,6 +300,7 @@ type Promise a = ... Location.Id
 - &shy;<!-- .element: class="fragment" -->The whole api Remote works across nodes.
 - &shy;<!-- .element: class="fragment" -->We can parallelise by forking _here_.
 - &shy;<!-- .element: class="fragment" --> We can _scale out_ by forking _far_.
+- &shy;<!-- .element: class="fragment" --> We can communicate via Ref+Promise.
 - &shy;<!-- .element: class="fragment" -->Guarantees degrade accordingly.
 
 Notes:
@@ -320,6 +321,7 @@ Not only that, but Thread, Ref and Promise all carry their location.
 So, as a result, the whole Remote api works across nodes.
 This means that we can parallelise by forking here.
 But we can also scale out by forking far.
+Ref+Promise can be used to communicate, replacing explicit networking code.
 
 Obviously, guarantees degrade accordingly: for example you can always
 `cancel` a computation on the same node, but might fail to cancel a
@@ -388,7 +390,7 @@ Cloud.run do
 ```unison
 type Daemon = ...
 
-Daemon.create : Text ->{Cloud} Daemon
+Daemon.named : Text ->{Cloud} Daemon
 Daemon.deploy : 
   Daemon -> Environment -> '{Remote} Void ->{Cloud} ()
 ```
@@ -408,9 +410,31 @@ We can implement distributed systems by deploying a `Daemon` that spawns `Remote
 
 ### Storage
 
+- &shy;<!-- .element: class="fragment" -->Typed key-value store.
+- &shy;<!-- .element: class="fragment" -->Supports multi-key transactions.
+- &shy;<!-- .element: class="fragment" -->Transactions are Unison programs.
+- &shy;<!-- .element: class="fragment" -->Can be used to build arbitrary datastructures.
+
 ----
 
 ### Storage api
+
+```unison
+  ability lib.unison_cloud_18_3_0.Storage.Transaction where
+    write.tx : Table k v -> k -> v ->{lib.unison_cloud_18_3_0.Storage.Transaction} ()
+    tryRead.tx : Table k v -> k ->{lib.unison_cloud_18_3_0.Storage.Transaction} Optional v
+    delete.tx : Table k v -> k ->{lib.unison_cloud_18_3_0.Storage.Transaction} ()
+@systemfw/klogs/talk> view Storage
+
+  ability lib.unison_cloud_18_3_0.Storage where
+    tryTransact :
+      Database
+      -> '{Transaction, Exception} a
+      ->{lib.unison_cloud_18_3_0.Storage} Either Failure a
+      
+Cloud.pool : '{Remote} Location {Storage, Http, Log, ...}
+  lib.unison_cloud_18_3_0.Database.named : Text ->{Exception, Cloud} Database
+```
 
 ----
 
