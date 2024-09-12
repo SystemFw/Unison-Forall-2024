@@ -419,21 +419,21 @@ We can implement distributed systems by deploying a `Daemon` that spawns `Remote
 
 ### Storage api
 
-```unison
-  ability lib.unison_cloud_18_3_0.Storage.Transaction where
-    write.tx : Table k v -> k -> v ->{lib.unison_cloud_18_3_0.Storage.Transaction} ()
-    tryRead.tx : Table k v -> k ->{lib.unison_cloud_18_3_0.Storage.Transaction} Optional v
-    delete.tx : Table k v -> k ->{lib.unison_cloud_18_3_0.Storage.Transaction} ()
-@systemfw/klogs/talk> view Storage
+```unison [1|1-6|1-11|1-13|]
+type Table k v = ...
 
-  ability lib.unison_cloud_18_3_0.Storage where
-    tryTransact :
-      Database
-      -> '{Transaction, Exception} a
-      ->{lib.unison_cloud_18_3_0.Storage} Either Failure a
-      
-Cloud.pool : '{Remote} Location {Storage, Http, Log, ...}
-  lib.unison_cloud_18_3_0.Database.named : Text ->{Exception, Cloud} Database
+ability Transaction where
+  write.tx : Table k v -> k -> v -> ()
+  tryRead.tx : Table k v -> k -> Optional v
+  delete.tx : Table k v -> k -> ()
+
+transact
+  :  Database
+  -> '{Transaction, Exception} a
+  ->{Storage, Exception} a
+  
+Cloud.pool : '{Remote} Location {Storage, ...}
+Database.named : Text ->{Exception, Cloud} Database
 ```
 
 ----
