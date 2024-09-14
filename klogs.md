@@ -578,6 +578,28 @@ sink ... c
 
 ----
 
+### Code for progress
+
+```unison
+type KLog.Id = Id Bytes
+type Key = Key KLog.Id Any
+
+loglets: Table Key (LinearLog Any)
+
+progress : Table (KLog.Id, Key) Offset
+
+progress : Table (KLog.Id, Key) (Offset, Any)
+```
+
+----
+
+### Naive implementation
+
+- Spawn a consumer for each key of each stage of each pipeline.
+
+
+----
+
 ## Plan
 
 show pipeline again
