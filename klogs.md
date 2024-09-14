@@ -494,7 +494,7 @@ Handlers + distributed runner.
 
 ### KLog
 
-```unison [1-2|1-5|1-2,7-9|1-2,7-13|]
+```unison [1-2|1-5|1-2,7-9|1-2,7-13]
 type KLog k v = KLog KLog.Id
 type KLog.Id = Id Bytes
 
@@ -508,6 +508,23 @@ ability Pipeline where
 { Pipeline.partition f (KLog in) -> resume } ->
    out = Id (blake2b_256 (f, in, "p"))
    ...
+```
+
+----
+
+### Loglets
+
+```unison [1|1-5|1,3,7|1,3,9-10]
+type KLog.Id = Id Bytes
+
+type Any = builtin
+Any.Any: a -> Any
+Any.unsafeExtract : Any -> a
+
+logs : Table KLog.Id (LinearLog (Any, Any))
+
+type Key = Key KLog.Id Any
+loglets: Table Key (LinearLog Any)
 ```
 
 ----
@@ -530,8 +547,14 @@ sink ... c
 
 ![](img/stages.svg)
 
+----
 
----
+### Pipeline stages
+
+![](img/stages2.svg)
+
+
+----
 
 ## Plan
 
