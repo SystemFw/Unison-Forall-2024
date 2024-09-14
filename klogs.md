@@ -371,6 +371,8 @@ Cloud.submit: Environment -> '{Remote} a ->{Cloud} a
 ...
 
 Cloud.run: '{Cloud} a ->{IO, Exception} a
+Cloud.run.local: '{Cloud} a ->{IO, Exception} a
+...
 
 Cloud.run do
   Cloud.submit Environment.default() myOneOffJob
@@ -378,11 +380,7 @@ Cloud.run do
 
 - Entry point for Unison Cloud.
 - Putting *code* back in infra-as-code.
-- &shy;<!-- .element: class="fragment" -->Supports local testing:
-  ```
-  Cloud.run.local do ...
-  ```
-- &shy;<!-- .element: class="fragment" -->What about long-running processes?
+
 ----
 
 ### Daemons
