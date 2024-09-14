@@ -558,7 +558,7 @@ sink ... c
 
 ### Pipeline stages
 
-![](img/keystages.svg)
+![](img/keystages2.svg)
 
 ----
 
