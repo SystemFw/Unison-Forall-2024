@@ -490,6 +490,47 @@ upper |> produce "F" 3
 ```
 Handlers + distributed runner.
 
+----
+
+### KLog
+
+```unison [1-2|1-5|1-2,7-9|1-2,7-13|]
+type KLog k v = KLog KLog.Id
+type KLog.Id = Id Bytes
+
+namedKLog : Text -> KLog k v
+namedKLog name = KLog (Id (blake2b_256 (name, "n")))
+
+ability Pipeline where
+  partition : (k -> v -> [k2]) -> KLog k v -> KLog k2 v
+  ...
+  
+{ Pipeline.partition f (KLog in) -> resume } ->
+   out = Id (blake2b_256 (f, in, "p"))
+   ...
+```
+
+----
+
+### Pipeline stages
+
+```
+upper = ...
+lower = ...
+
+a = Pipeline.merge [upper, lower]
+b = Pipeline.partition ... a
+c = Pipeline.loop ... c
+sink ... c
+```
+
+----
+
+### Pipeline stages
+
+![](img/stages.svg)
+
+
 ---
 
 ## Plan
@@ -505,6 +546,11 @@ later we'll see how to guarantee correctness
 at some point I have to also show pipelines being translated
 then, shape of the loglets, and notification log shapes
 simple write path
+maybe optimised write path,
+then pipeline implementation
+then rebalance?
+I just don't have time to do a full analysis of distributed systems
+tradeoffs like I had planned to
 
 then I have to figure out rebalancing and optimisations
 
