@@ -364,7 +364,7 @@ support logging.
 
 ### The Cloud ability
 
-```unison
+```unison [|1-2|1-6|]
 Environment.default : '{Cloud} Environment
 Cloud.submit: Environment -> '{Remote} a ->{Cloud} a
 ...
@@ -474,7 +474,21 @@ LinearLog.from log start =
 ## Implementing KLogs
 
 ```unison
+type KLog k v = ...
+ability Pipeline where ...
+ability KLogs where ...
+
+KLogs.deploy do
+  Pipeline.merge [upper, lower]
+  |> Pipeline.partition (k _ -> [Text.toLowercase k])
+  |> Pipeline.loop 0 cases _ counter value ->
+       newCount = counter + value
+       (newCount, [newCount])
+  |> sink printCountJson
+
+upper |> produce "F" 3
 ```
+Handlers + distributed runner.
 
 ---
 
