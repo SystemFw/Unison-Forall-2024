@@ -574,13 +574,7 @@ sink ... c
 
 ### Pipeline stages
 
-![](img/stages2.svg)
-
-----
-
-### Pipeline stages
-
-![](img/stages3.svg)
+![](img/hashedstages.svg)
 
 
 ----
@@ -595,7 +589,9 @@ sink ... c
 
 - Each pipeline stage corresponds to a **KLog.Id**.
 - One or more **KLog.Id** are fed as input to a stage.
-- There is a stage running for _each key_ of each of its inputs.
+- There is a stage running for _each key_ of each input.
+- Running stages keep track of progress _per loglet_.
+
 
 ----
 
@@ -619,7 +615,6 @@ progress : Table (KLog.Id, Key) (Offset, Any)
 - Spawn a consumer for each key of each stage of each pipeline.
 
 
-----
 
 ## Plan
 
