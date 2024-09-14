@@ -471,7 +471,14 @@ LinearLog.from log start =
 
 ---
 
-## Design plan
+## Implementing KLogs
+
+```unison
+```
+
+---
+
+## Plan
 
 show pipeline again
 show that klogs are ids
