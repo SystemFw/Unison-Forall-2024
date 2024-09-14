@@ -587,34 +587,37 @@ sink ... c
 
 ### Pipeline stages
 
-- Each pipeline stage corresponds to a **KLog.Id**.
-- One or more **KLog.Id** are fed as input to a stage.
-- There is a stage running for _each key_ of each input.
-- Running stages keep track of progress _per loglet_.
+- &shy;<!-- .element: class="fragment" -->Each pipeline stage maps to an output **KLog.Id**.
+- &shy;<!-- .element: class="fragment" -->One or more **KLog.Id** are fed as input to a stage.
+- &shy;<!-- .element: class="fragment" -->There is a stage running for _each key_ of each input.
+- &shy;<!-- .element: class="fragment" -->Running stages keep track of progress _per loglet_.
 
 
 ----
 
 ### Progress for stages
 
-```unison
+```unison [1-4|1-5|1-4,6]
 type KLog.Id = Id Bytes
 type Key = Key KLog.Id Any
-
 loglets: Table Key (LinearLog Any)
 
 progress : Table (KLog.Id, Key) Offset
-
 progress : Table (KLog.Id, Key) (Offset, Any)
 ```
+
+- We add the extra **Any** to track state in **loop**.
 
 ----
 
 ### Naive implementation
 
-- Spawn a consumer for each key of each stage of each pipeline.
+- &shy;<!-- .element: class="fragment" -->Spawn a consumer per loglet, per stage, per pipeline.
+- &shy;<!-- .element: class="fragment" -->Scales well.
+- &shy;<!-- .element: class="fragment" -->Bad resource utilisation.
+- &shy;<!-- .element: class="fragment" -->Most polls return nothing.
 
-
+----
 
 ## Plan
 
