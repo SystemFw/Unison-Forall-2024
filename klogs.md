@@ -298,9 +298,8 @@ type Ref a = ... Location.Id
 type Promise a = ... Location.Id
 ```
 - &shy;<!-- .element: class="fragment" -->The whole Remote api works across nodes.
-- &shy;<!-- .element: class="fragment" -->We can parallelise by forking _here_.
 - &shy;<!-- .element: class="fragment" --> We can _scale out_ by forking _far_.
-- &shy;<!-- .element: class="fragment" --> We can communicate via Ref+Promise.
+- &shy;<!-- .element: class="fragment" --> Ref+Promise replace networking code.
 - &shy;<!-- .element: class="fragment" -->Guarantees degrade accordingly.
 
 Notes:
@@ -348,7 +347,7 @@ detachAt (far pool() here()) do
 
 - &shy;<!-- .element: class="fragment" -->Locations are typed with the effects they support.
 - &shy;<!-- .element: class="fragment" -->Unison Cloud comes with a rich set of effects.
-- &shy;<!-- .element: class="fragment" -->We can safely sends programs to another node.
+- &shy;<!-- .element: class="fragment" -->We can sends programs to another node safely.
 
 Notes:
 Ok, one more detail about Locations, they are typed with the set of
@@ -377,9 +376,6 @@ Cloud.run.local: '{Cloud} a ->{IO, Exception} a
 Cloud.run do
   Cloud.submit Environment.default() myOneOffJob
 ```
-
-- Entry point for Unison Cloud.
-- Putting *code* back in infra-as-code.
 
 ----
 
