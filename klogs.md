@@ -546,8 +546,9 @@ consumer k =
     sleep pollInterval
   loop()
 ```
-- Polling works across restarts
-- Offset achieves at-least-once processing
+- Polling works across restarts.
+- Offsets achieve at-least-once processing.
+- How are offsets stored?
 
 ----
 
@@ -569,6 +570,18 @@ sink ... c
 
 ![](img/stages.svg)
 
+----
+
+### Pipeline stages
+
+![](img/stages2.svg)
+
+----
+
+### Pipeline stages
+
+![](img/stages3.svg)
+
 
 ----
 
@@ -578,7 +591,15 @@ sink ... c
 
 ----
 
-### Code for progress
+### Pipeline stages
+
+- Each pipeline stage corresponds to a **KLog.Id**.
+- One or more **KLog.Id** are fed as input to a stage.
+- There is a stage running for _each key_ of each of its inputs.
+
+----
+
+### Progress for stages
 
 ```unison
 type KLog.Id = Id Bytes
