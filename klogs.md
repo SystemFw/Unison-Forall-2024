@@ -530,9 +530,24 @@ loglets: Table Key (LinearLog Any)
 ----
 
 ### Consuming loglets
-reading
-keep offset
-use poll so you can do it even after a failure
+
+```unison
+loglets: Table Key (LinearLog Any)
+type Offset = Offset Nat
+  
+consumer: Key ->{Remote} ()
+consumer k =
+  loop = do
+    lastSeen = read myOffset
+    loglet = read loglets k
+    values = LinearLog.from loglet lastSeen
+    process k values
+    write myOffset (lastSeen + size values)
+    sleep pollInterval
+  loop()
+```
+- Polling works across restarts
+- Offset achieves at-least-once processing
 
 ----
 
