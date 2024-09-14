@@ -529,6 +529,7 @@ loglets: Table Key (LinearLog Any)
 
 ----
 
+### Consuming loglets
 reading
 keep offset
 use poll so you can do it even after a failure
@@ -558,7 +559,7 @@ sink ... c
 
 ### Pipeline stages
 
-![](img/keystages2.svg)
+![](img/keystages.svg)
 
 ----
 
