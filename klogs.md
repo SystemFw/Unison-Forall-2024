@@ -404,10 +404,10 @@ We can implement distributed systems by deploying a `Daemon` that spawns `Remote
 
 ### Storage
 
-- &shy;<!-- .element: class="fragment" -->Typed key-value store.
-- &shy;<!-- .element: class="fragment" -->Supports multi-key transactions.
-- &shy;<!-- .element: class="fragment" -->Transactions are Unison programs.
-- &shy;<!-- .element: class="fragment" -->Can be used to build arbitrary datastructures.
+- Typed key-value store.
+- Supports multi-key transactions.
+- Transactions are Unison programs.
+- Can be used to build arbitrary datastructures.
 
 ----
 
