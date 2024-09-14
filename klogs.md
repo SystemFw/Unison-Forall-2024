@@ -529,6 +529,12 @@ loglets: Table Key (LinearLog Any)
 
 ----
 
+reading
+keep offset
+use poll so you can do it even after a failure
+
+----
+
 ### Pipeline stages
 
 ```
@@ -547,6 +553,12 @@ sink ... c
 
 ![](img/stages.svg)
 
+
+----
+
+### Pipeline stages
+
+![](img/keystages.svg)
 
 ----
 
