@@ -619,6 +619,18 @@ progress : Table (KLog.Id, Key) (Offset, Any)
 
 ----
 
+### Shards and workers
+
+- &shy;<!-- .element: class="fragment" -->Spawn a fixed number of workers.
+- &shy;<!-- .element: class="fragment" -->Write changed keys into a fixed number of shards.
+- &shy;<!-- .element: class="fragment" -->Map each worker to a shard.
+- &shy;<!-- .element: class="fragment" -->Workers host and invoke pipelines stages
+- &shy;<!-- .element: class="fragment" -->One poll per worker.
+- &shy;<!-- .element: class="fragment" -->A pipeline stage only runs if it has work to do.
+
+
+----
+
 ## Plan
 
 show pipeline again
