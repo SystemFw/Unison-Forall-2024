@@ -419,7 +419,7 @@ We can implement distributed systems by deploying a `Daemon` that spawns `Remote
 
 ### Storage api
 
-```unison [1|1-6|1-11|1-13|]
+```unison [1|1-6|1-11|1-8, 10|1-8, 11-13|1-9,14|]
 type Table k v = ...
 
 ability Transaction where
@@ -476,6 +476,23 @@ LinearLog.from log start =
 - **Storage**: durable data structures with transactions.
 
 ---
+
+## Design plan
+
+show pipeline again
+show that klogs are ids
+show the idea of stages, and how we name klogs
+show diagrams and various types of concurrency
+shards vs threads, and general shape
+workers and sharding/key assignment
+mention sequential correctness requirement
+later we'll see how to guarantee correctness
+at some point I have to also show pipelines being translated
+then, shape of the loglets, and notification log shapes
+simple write path
+
+then I have to figure out rebalancing and optimisations
+
 
  
 # End
