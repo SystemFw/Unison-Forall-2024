@@ -537,14 +537,13 @@ type Offset = Offset Nat
   
 consumer: Key ->{Remote} ()
 consumer k =
-  loop = do
-    lastSeen = read myOffset
-    loglet = read loglets k
-    values = LinearLog.from loglet lastSeen
-    process k values
-    write myOffset (lastSeen + size values)
-    sleep pollInterval
-  loop()
+  lastSeen = read myOffset
+  loglet = read loglets k
+  values = LinearLog.from loglet lastSeen
+  process k values
+  write myOffset (lastSeen + size values)
+  sleep pollInterval
+  consumer k
 ```
 - Polling works across restarts.
 - Offsets achieve at-least-once processing.
@@ -624,7 +623,7 @@ progress : Table (KLog.Id, Key) (Offset, Any)
 - &shy;<!-- .element: class="fragment" -->Spawn a fixed number of workers.
 - &shy;<!-- .element: class="fragment" -->Write changed keys into a fixed number of shards.
 - &shy;<!-- .element: class="fragment" -->Map each worker to a shard.
-- &shy;<!-- .element: class="fragment" -->Workers host and invoke pipelines stages
+- &shy;<!-- .element: class="fragment" -->Workers host and invoke pipelines stages.
 - &shy;<!-- .element: class="fragment" -->One poll per worker.
 - &shy;<!-- .element: class="fragment" -->A pipeline stage only runs if it has work to do.
 
@@ -633,25 +632,16 @@ progress : Table (KLog.Id, Key) (Offset, Any)
 
 ## Plan
 
-show pipeline again
-show that klogs are ids
-show the idea of stages, and how we name klogs
-show diagrams and various types of concurrency
-shards vs threads, and general shape
-workers and sharding/key assignment
-mention sequential correctness requirement
-later we'll see how to guarantee correctness
-at some point I have to also show pipelines being translated
-then, shape of the loglets, and notification log shapes
-simple write path
-maybe optimised write path,
-then pipeline implementation
-then rebalance?
-I just don't have time to do a full analysis of distributed systems
-tradeoffs like I had planned to
-
-then I have to figure out rebalancing and optimisations
-
+show loglets, notifications, progress
+show producer with loglet and notifications
+mention the hashing to keep sequencing
+show code for consumer (includes map of pipelines)
+show picture
+show producer optimisation and ability
+show pipeline
+show consumer optimisation?
+rebalancing/supervision/views/view changes
+leases/fence
 
  
 # End
