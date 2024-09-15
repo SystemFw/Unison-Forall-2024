@@ -668,7 +668,7 @@ produce db klog k v =
 
 ### Worker
 
-```unison
+```unison [1-2|]
 stages: Map KLog.Id [Key ->{Remote, Produce} ()]
 stages = ...
 
@@ -713,6 +713,10 @@ show pipeline
 show consumer optimisation?
 rebalancing/supervision/views/view changes
 leases/fence
+other points: 
+deployment
+why double writes (frees you from having to size topics individually)
+shutdown
 
 ----
  
