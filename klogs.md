@@ -616,9 +616,9 @@ progress : Table (KLog.Id, Key) (Offset, Any)
 - &shy;<!-- .element: class="fragment" -->Bad resource utilisation.
 - &shy;<!-- .element: class="fragment" -->Most polls return nothing.
 
-----
+---
 
-### Shards and workers
+## Shards and workers
 
 - &shy;<!-- .element: class="fragment" -->Spawn a fixed number of workers.
 - &shy;<!-- .element: class="fragment" -->Write changed keys into a fixed number of shards.
@@ -627,6 +627,42 @@ progress : Table (KLog.Id, Key) (Offset, Any)
 - &shy;<!-- .element: class="fragment" -->One poll per worker.
 - &shy;<!-- .element: class="fragment" -->A pipeline stage only runs if it has work to do.
 
+----
+
+### Shards
+
+```unison [1-4|1-6|1-7|1-8| ]
+type KLog.Id = Id Bytes
+type Key = Key KLog.Id Any
+loglets: Table Key (LinearLog Any)
+progress : Table (KLog.Id, Key) (Offset, Any)
+
+type Shard = Shard Nat
+shardCount: Table () Nat
+notifications : Table Shard (LinearLog Key)
+workerProgress: Table Shard Offset
+```
+
+----
+
+### Producing
+
+```unison [1-2|1-3|1-6|1-10|]
+produce : Database -> KLog.Id -> k -> v ->{..} ()
+produce db klog k v =
+  key = (klog, Any k)
+  transact db do
+    loglet = read loglets key
+    LinearLog.add loglet (Any v)
+  transact db do
+    shards = read shardCount ()
+    keyHash = murmurHash key
+    target = Shard (Nat.mod keyHash shards)
+    shard = read notifications target
+    LinearLog.add shard key
+```
+- &shy;<!-- .element: class="fragment" --> Notify after record is written to loglet.
+- &shy;<!-- .element: class="fragment" --> Hash+mod preserves per key linear order.
 
 ----
 
@@ -643,6 +679,7 @@ show consumer optimisation?
 rebalancing/supervision/views/view changes
 leases/fence
 
+----
  
 # End
 
