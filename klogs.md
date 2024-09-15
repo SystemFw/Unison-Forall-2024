@@ -666,6 +666,41 @@ produce db klog k v =
 
 ----
 
+### Worker
+
+```unison
+stages: Map KLog.Id [Key ->{Remote, Produce} ()]
+stages = ...
+
+consumer myShard =
+  lastSeen = read workerProgress myShard
+  changedKeys = 
+    LinearLog.from (read notifications myShard) lastSeen
+  changedKeys
+   |> distinct
+   |> flatMap (k -> Mu)
+   |> parMap (k -> get computeStages k |> parMap runStage)
+  write workerProgress (lastSeen + size changedKeys)
+  sleep pollInterval
+  consumer myShard
+```
+
+----
+
+### Stage structure
+
+- &shy;<!-- .element: class="fragment" -->Compute output **KLog.Id**.
+- &shy;<!-- .element: class="fragment" -->Fetch offset (and state).
+- &shy;<!-- .element: class="fragment" -->Fetch messages from the loglet.
+- &shy;<!-- .element: class="fragment" -->Compute new messages (and state).
+- &shy;<!-- .element: class="fragment" -->Produce new messages.
+- &shy;<!-- .element: class="fragment" -->Advance offset (and state).
+- &shy;<!-- .element: class="fragment" -->Terminate.
+- &shy;<!-- .element: class="fragment" --> _Per key_.
+
+
+----
+
 ## Plan
 
 show loglets, notifications, progress
