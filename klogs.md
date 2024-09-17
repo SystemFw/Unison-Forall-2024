@@ -5,7 +5,7 @@ theme: solarized
 highlightTheme: atom-one-light
 revealOptions:
   transition: slide
-  slideNumber: false
+  slideNumber: c
 ---
 
 # KLogs
@@ -803,41 +803,9 @@ sink : (k -> v ->{Remote} ()) -> KLog k v -> ()
 
 ----
 
-### Arch
-
-![](img/arch.svg)
-
-----
-
-### Arch
-
-![](img/arch2.svg)
-
-----
-
-### Arch
-
-![](img/arch3.svg)
-
-----
-
-### Workers
-
-![](img/arch4.svg)
-
-----
-
-
-### Workers
-
-![](img/arch5.svg)
-
-----
-
-
 ### Topology
 
-![](img/arch6.svg)
+![](img/arch.svg)
 
 ----
 ## Plan
