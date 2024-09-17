@@ -817,7 +817,11 @@ sink : (k -> v ->{Remote} ()) -> KLog k v -> ()
 
 ``` unison
 type IdempotencyToken = 
-   IdempotencyToken KLog.Id Key Offset
+   IdempotencyToken 
+      KLog.Id -- Which stage
+      Key -- For which input loglet
+      Offset -- At which point in time
+      
 type Msg = Msg IdempotencyToken Key [Any] 
 
 idempotency: Table IdempotencyToken ()
