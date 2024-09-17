@@ -827,6 +827,12 @@ sink : (k -> v ->{Remote} ()) -> KLog k v -> ()
 
 ----
 
+
+### Workers
+
+![](img/arch5.svg)
+
+----
 ## Plan
 
 show loglets, notifications, progress
