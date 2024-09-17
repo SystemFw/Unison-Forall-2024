@@ -629,7 +629,7 @@ progress : Table (KLog.Id, Key) (Offset, Any)
 
 ----
 
-### Shards
+### Notification shards
 
 ```unison [1-4|1-6|1-7|1-8| ]
 type KLog.Id = Id Bytes
