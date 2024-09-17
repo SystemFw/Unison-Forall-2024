@@ -804,6 +804,12 @@ sink : (k -> v ->{Remote} ()) -> KLog k v -> ()
 
 ----
 
+### Arch
+
+![](img/arch.svg)
+
+----
+
 ## Plan
 
 show loglets, notifications, progress
