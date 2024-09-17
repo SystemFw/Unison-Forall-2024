@@ -650,7 +650,7 @@ workerProgress: Table Shard Offset
 ```unison [1-2|1-3|1-6|1-10|]
 produce : Database -> KLog.Id -> k -> v ->{..} ()
 produce db klog k v =
-  key = (klog, Any k)
+  key = Key klog (Any k)
   transact db do
     loglet = read loglets key
     LinearLog.add loglet (Any v)
