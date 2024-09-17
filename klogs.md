@@ -669,7 +669,7 @@ produce db klog k v =
 ### Worker
 
 ```unison [1-2|1-4, 15|1-7, 15|1-10,15|1-11,15|1-12,15|1-13,15|]
-stages: Map KLog.Id [Key ->{Remote, Produce} ()]
+stages: Map KLog.Id [Key ->{Remote} ()]
 stages = ...
 
 consumer myShard =
@@ -689,6 +689,73 @@ consumer myShard =
 &shy;<!-- .element: class="fragment" -->`distinct` preserves correctness.
 
 ----
+
+### Stages
+
+```unison
+compilePipeline 
+  :  Database
+  -> '{Pipeline} () 
+  -> Map KLog.Id [Key ->{Remote} ()]
+compilePipeline db p =
+  go stages p = handle p() with cases
+    { Pipeline.partition f (KLog input) -> resume } ->
+      out = KLog.Id (hash (f, input, "p"))
+      logic k v = 
+        f k v |> foreach_ (k2 -> publish out k2 v)
+      stage k =
+        lastSeen = progress.get db out k
+        messages = loglets.get db k lastSeen
+        messages |> foreach_ (v -> logic (key k) v)
+        seen = size messages
+        progress.update db out k seen
+      stages' = stages |> insert input stage
+      go stages' do resume (KLog out)
+    { Pipeline.merge logs -> resume } ->
+      inputs = logs |> (map cases KLog id -> id)
+      out = Id (blake2b_256 (inputs, "m"))
+      logic k v = publish out k v
+      stage k =
+        seen = progress.get db out k
+        messages = loglets.get db k lastSeen
+        messages |> foreach_ (v -> logic (key k) v)
+        seen = size messages
+        progress.update db out k seen
+      stages' = 
+        inputs |> foldLeft (stages input -> stages |> insert input stage) stages
+      go stages' do resume (KLog out)
+    { Pipeline.loop init f (KLog in) -> resume } ->
+      out = Id (blake2b_256 (f, in, "l"))
+        processKey k =
+          (from, s) = getWithState db out k (Any init)
+          (s', to) =
+            loglets.get db k from |> (flip foldLeft (s, None) cases
+              (s, _), (offset, v) ->
+                (s', vs) = f (unsafeExtract (key k)) (unsafeExtract s) (unsafeExtract v)
+                token = Some (IdempotencyToken out k offset)
+                publish (Msg token (Key out (key k)) (map Any vs))
+                (Any s', Some offset))
+          updateWithState db out k s' to
+        stages' = stages |> insert in processKey
+        go stages' do resume (KLog out)
+      { sink f (KLog in) -> resume } ->
+        out = Id (blake2b_256 (f, in, "s"))
+        processKey k =
+          from = progress.get db out k
+          to =
+            loglets.get db k from |> (map cases
+              (offset, v) ->
+                _ = f (unsafeExtract (key k)) (unsafeExtract v)
+                offset) |> last
+          update db out k to
+        stages' = stages |> insert in processKey
+        go stages' resume
+      { a } -> stages
+  go data.Map.empty p
+```
+
+----
+
 
 ### Stage structure
 
