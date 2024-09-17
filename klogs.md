@@ -801,12 +801,17 @@ sink : (k -> v ->{Remote} ()) -> KLog k v -> ()
   go stages' resume
 ```
 
-
 ----
 
 ### Arch
 
 ![](img/arch.svg)
+
+----
+
+### Arch
+
+![](img/arch2.svg)
 
 ----
 
