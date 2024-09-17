@@ -699,57 +699,11 @@ compilePipeline
   -> Map KLog.Id [Key ->{Remote} ()]
 compilePipeline db p =
   go stages p = handle p() with cases
-    { Pipeline.partition f (KLog input) -> resume } ->
-      out = KLog.Id (hash (f, input, "p"))
-      logic k v = 
-        f k v |> foreach_ (k2 -> publish out k2 v)
-      stage k =
-        lastSeen = progress.get db out k
-        messages = loglets.get db k lastSeen
-        messages |> foreach_ (v -> logic (key k) v)
-        seen = size messages
-        progress.update db out k seen
-      stages' = stages |> insert input stage
-      go stages' do resume (KLog out)
-    { Pipeline.merge logs -> resume } ->
-      inputs = logs |> (map cases KLog id -> id)
-      out = KLog.Id (hash (inputs, "m"))
-      logic k v = publish out k v
-      stage k =
-        seen = progress.get db out k
-        messages = loglets.get db k lastSeen
-        messages |> foreach_ (v -> logic (key k) v)
-        seen = size messages
-        progress.update db out k seen
-      stages' = 
-        inputs |> foldLeft (stages input -> stages |> insert input stage) stages
-      go stages' do resume (KLog out)
-    { Pipeline.loop init f (KLog input) -> resume } ->
-        out = KLog.Id (hash (f, input, "l"))
-        logic s k v = 
-          (s', vs) = f s k v
-          vs |> foreach_ (v -> publish out k v)
-          s'
-        stage k =
-          (lastSeen, s) = progress.getWithState db out k init
-          messages = loglets db k lastSeen
-          s' = messages |> foldLeft (s v -> logic s (key k) v) s
-          seen = size messages
-          progress.updateWithState db out k s' seen
-        stages' = stages |> insert input stage
-        go stages' do resume (KLog out)
-      { sink f (KLog input) -> resume } ->
-        out = KLog.Id (hash (f, in, "s"))
-        logic k v = f k v
-        stage k =
-          lastSeen = progress.get db out k
-          messages = loglets.get db k lastSeen
-          messages |> foreach_ (v  -> logic (key k) v)
-          seen = size messages
-          progress.update db out k seen
-        stages' = stages |> insert in stage
-        go stages' resume
-      { a } -> stages
+    { partition f (KLog in) -> resume } -> ...
+    { merge logs -> resume } -> ...
+    { loop init f (KLog in) -> resume } -> ...
+    { sink f (KLog in) -> resume } -> ...
+    { a } -> stages
   go data.Map.empty p
 ```
 
@@ -758,64 +712,19 @@ compilePipeline db p =
 ### Stages: partition
 
 ```unison
-compilePipeline 
-  :  Database
-  -> '{Pipeline} () 
-  -> Map KLog.Id [Key ->{Remote} ()]
-compilePipeline db p =
-  go stages p = handle p() with cases
-    { Pipeline.partition f (KLog input) -> resume } ->
-      out = KLog.Id (hash (f, input, "p"))
-      logic k v = 
-        f k v |> foreach_ (k2 -> publish out k2 v)
-      stage k =
-        lastSeen = progress.get db out k
-        messages = loglets.get db k lastSeen
-        messages |> foreach_ (v -> logic (key k) v)
-        seen = size messages
-        progress.update db out k seen
-      stages' = stages |> insert input stage
-      go stages' do resume (KLog out)
-    { Pipeline.merge logs -> resume } ->
-      inputs = logs |> (map cases KLog id -> id)
-      out = KLog.Id (hash (inputs, "m"))
-      logic k v = publish out k v
-      stage k =
-        seen = progress.get db out k
-        messages = loglets.get db k lastSeen
-        messages |> foreach_ (v -> logic (key k) v)
-        seen = size messages
-        progress.update db out k seen
-      stages' = 
-        inputs |> foldLeft (stages input -> stages |> insert input stage) stages
-      go stages' do resume (KLog out)
-    { Pipeline.loop init f (KLog input) -> resume } ->
-        out = KLog.Id (hash (f, input, "l"))
-        logic s k v = 
-          (s', vs) = f s k v
-          vs |> foreach_ (v -> publish out k v)
-          s'
-        stage k =
-          (lastSeen, s) = progress.getWithState db out k init
-          messages = loglets db k lastSeen
-          s' = messages |> foldLeft (s v -> logic s (key k) v) s
-          seen = size messages
-          progress.updateWithState db out k s' seen
-        stages' = stages |> insert input stage
-        go stages' do resume (KLog out)
-      { sink f (KLog input) -> resume } ->
-        out = KLog.Id (hash (f, in, "s"))
-        logic k v = f k v
-        stage k =
-          lastSeen = progress.get db out k
-          messages = loglets.get db k lastSeen
-          messages |> foreach_ (v  -> logic (key k) v)
-          seen = size messages
-          progress.update db out k seen
-        stages' = stages |> insert in stage
-        go stages' resume
-      { a } -> stages
-  go data.Map.empty p
+go stages p = handle p() with cases
+  { partition f (KLog in) -> resume } ->
+    out = KLog.Id (hash (f, in, "p"))
+    logic k v = 
+      f k v |> foreach_ (k2 -> publish out k2 v)
+    stage k =
+      lastSeen = progress.get db out k
+      messages = loglets.get db k lastSeen
+      messages |> foreach_ (v -> logic (key k) v)
+      seen = size messages
+      progress.update db out k seen
+    stages' = stages |> insert in stage
+    go stages' do resume (KLog out)
 ```
 
 ----
@@ -823,64 +732,20 @@ compilePipeline db p =
 ### Stages: merge
 
 ```unison
-compilePipeline 
-  :  Database
-  -> '{Pipeline} () 
-  -> Map KLog.Id [Key ->{Remote} ()]
-compilePipeline db p =
-  go stages p = handle p() with cases
-    { Pipeline.partition f (KLog input) -> resume } ->
-      out = KLog.Id (hash (f, input, "p"))
-      logic k v = 
-        f k v |> foreach_ (k2 -> publish out k2 v)
-      stage k =
-        lastSeen = progress.get db out k
-        messages = loglets.get db k lastSeen
-        messages |> foreach_ (v -> logic (key k) v)
-        seen = size messages
-        progress.update db out k seen
-      stages' = stages |> insert input stage
-      go stages' do resume (KLog out)
-    { Pipeline.merge logs -> resume } ->
-      inputs = logs |> (map cases KLog id -> id)
-      out = KLog.Id (hash (inputs, "m"))
-      logic k v = publish out k v
-      stage k =
-        seen = progress.get db out k
-        messages = loglets.get db k lastSeen
-        messages |> foreach_ (v -> logic (key k) v)
-        seen = size messages
-        progress.update db out k seen
-      stages' = 
-        inputs |> foldLeft (stages input -> stages |> insert input stage) stages
-      go stages' do resume (KLog out)
-    { Pipeline.loop init f (KLog input) -> resume } ->
-        out = KLog.Id (hash (f, input, "l"))
-        logic s k v = 
-          (s', vs) = f s k v
-          vs |> foreach_ (v -> publish out k v)
-          s'
-        stage k =
-          (lastSeen, s) = progress.getWithState db out k init
-          messages = loglets db k lastSeen
-          s' = messages |> foldLeft (s v -> logic s (key k) v) s
-          seen = size messages
-          progress.updateWithState db out k s' seen
-        stages' = stages |> insert input stage
-        go stages' do resume (KLog out)
-      { sink f (KLog input) -> resume } ->
-        out = KLog.Id (hash (f, in, "s"))
-        logic k v = f k v
-        stage k =
-          lastSeen = progress.get db out k
-          messages = loglets.get db k lastSeen
-          messages |> foreach_ (v  -> logic (key k) v)
-          seen = size messages
-          progress.update db out k seen
-        stages' = stages |> insert in stage
-        go stages' resume
-      { a } -> stages
-  go data.Map.empty p
+go stages p = handle p() with cases
+  { merge logs -> resume } ->
+    ins = logs |> (map cases KLog id -> id)
+    out = KLog.Id (hash (ins, "m"))
+    logic k v = publish out k v
+    stage k =
+      seen = progress.get db out k
+      messages = loglets.get db k lastSeen
+      messages |> foreach_ (v -> logic (key k) v)
+      seen = size messages
+      progress.update db out k seen
+    stages' = 
+      foldLeft (stages in -> insert in stage stages) stages ins
+    go stages' do resume (KLog out)
 ```
 
 ----
@@ -888,143 +753,40 @@ compilePipeline db p =
 ### Stages: loop
 
 ```unison
-compilePipeline 
-  :  Database
-  -> '{Pipeline} () 
-  -> Map KLog.Id [Key ->{Remote} ()]
-compilePipeline db p =
-  go stages p = handle p() with cases
-    { Pipeline.partition f (KLog input) -> resume } ->
-      out = KLog.Id (hash (f, input, "p"))
-      logic k v = 
-        f k v |> foreach_ (k2 -> publish out k2 v)
-      stage k =
-        lastSeen = progress.get db out k
-        messages = loglets.get db k lastSeen
-        messages |> foreach_ (v -> logic (key k) v)
-        seen = size messages
-        progress.update db out k seen
-      stages' = stages |> insert input stage
-      go stages' do resume (KLog out)
-    { Pipeline.merge logs -> resume } ->
-      inputs = logs |> (map cases KLog id -> id)
-      out = KLog.Id (hash (inputs, "m"))
-      logic k v = publish out k v
-      stage k =
-        seen = progress.get db out k
-        messages = loglets.get db k lastSeen
-        messages |> foreach_ (v -> logic (key k) v)
-        seen = size messages
-        progress.update db out k seen
-      stages' = 
-        inputs |> foldLeft (stages input -> stages |> insert input stage) stages
-      go stages' do resume (KLog out)
-    { Pipeline.loop init f (KLog input) -> resume } ->
-        out = KLog.Id (hash (f, input, "l"))
-        logic s k v = 
-          (s', vs) = f s k v
-          vs |> foreach_ (v -> publish out k v)
-          s'
-        stage k =
-          (lastSeen, s) = progress.getWithState db out k init
-          messages = loglets db k lastSeen
-          s' = messages |> foldLeft (s v -> logic s (key k) v) s
-          seen = size messages
-          progress.updateWithState db out k s' seen
-        stages' = stages |> insert input stage
-        go stages' do resume (KLog out)
-      { sink f (KLog input) -> resume } ->
-        out = KLog.Id (hash (f, in, "s"))
-        logic k v = f k v
-        stage k =
-          lastSeen = progress.get db out k
-          messages = loglets.get db k lastSeen
-          messages |> foreach_ (v  -> logic (key k) v)
-          seen = size messages
-          progress.update db out k seen
-        stages' = stages |> insert in stage
-        go stages' resume
-      { a } -> stages
-  go data.Map.empty p
+go stages p = handle p() with cases
+  { loop init f (KLog input) -> resume } ->
+    out = KLog.Id (hash (f, input, "l"))
+    logic s k v = 
+      (s', vs) = f s k v
+      vs |> foreach_ (v -> publish out k v)
+      s'
+    stage k =
+      (lastSeen, s) = progress.getWithState db out k init
+      messages = loglets db k lastSeen
+      s' = messages |> foldLeft (s v -> logic s (key k) v) s
+      seen = size messages
+      progress.updateWithState db out k s' seen
+    stages' = stages |> insert input stage
+    go stages' do resume (KLog out)
 ```
 
 ----
+
 ### Stages: sink
 
 ```unison
-compilePipeline 
-  :  Database
-  -> '{Pipeline} () 
-  -> Map KLog.Id [Key ->{Remote} ()]
-compilePipeline db p =
-  go stages p = handle p() with cases
-    { Pipeline.partition f (KLog input) -> resume } ->
-      out = KLog.Id (hash (f, input, "p"))
-      logic k v = 
-        f k v |> foreach_ (k2 -> publish out k2 v)
-      stage k =
-        lastSeen = progress.get db out k
-        messages = loglets.get db k lastSeen
-        messages |> foreach_ (v -> logic (key k) v)
-        seen = size messages
-        progress.update db out k seen
-      stages' = stages |> insert input stage
-      go stages' do resume (KLog out)
-    { Pipeline.merge logs -> resume } ->
-      inputs = logs |> (map cases KLog id -> id)
-      out = KLog.Id (hash (inputs, "m"))
-      logic k v = publish out k v
-      stage k =
-        seen = progress.get db out k
-        messages = loglets.get db k lastSeen
-        messages |> foreach_ (v -> logic (key k) v)
-        seen = size messages
-        progress.update db out k seen
-      stages' = 
-        inputs |> foldLeft (stages input -> stages |> insert input stage) stages
-      go stages' do resume (KLog out)
-    { Pipeline.loop init f (KLog input) -> resume } ->
-        out = KLog.Id (hash (f, input, "l"))
-        logic s k v = 
-          (s', vs) = f s k v
-          vs |> foreach_ (v -> publish out k v)
-          s'
-        stage k =
-          (lastSeen, s) = progress.getWithState db out k init
-          messages = loglets db k lastSeen
-          s' = messages |> foldLeft (s v -> logic s (key k) v) s
-          seen = size messages
-          progress.updateWithState db out k s' seen
-        stages' = stages |> insert input stage
-        go stages' do resume (KLog out)
-      { sink f (KLog input) -> resume } ->
-        out = KLog.Id (hash (f, in, "s"))
-        logic k v = f k v
-        stage k =
-          lastSeen = progress.get db out k
-          messages = loglets.get db k lastSeen
-          messages |> foreach_ (v  -> logic (key k) v)
-          seen = size messages
-          progress.update db out k seen
-        stages' = stages |> insert in stage
-        go stages' resume
-      { a } -> stages
-  go data.Map.empty p
+{ sink f (KLog input) -> resume } ->
+  out = KLog.Id (hash (f, in, "s"))
+  logic k v = f k v
+  stage k =
+    lastSeen = progress.get db out k
+    messages = loglets.get db k lastSeen
+    messages |> foreach_ (v  -> logic (key k) v)
+    seen = size messages
+    progress.update db out k seen
+  stages' = stages |> insert in stage
+  go stages' resume
 ```
-
-----
-
-
-### Stage structure
-
-- &shy;<!-- .element: class="fragment" -->Compute output **KLog.Id**.
-- &shy;<!-- .element: class="fragment" -->Fetch offset (and state).
-- &shy;<!-- .element: class="fragment" -->Fetch messages from the loglet.
-- &shy;<!-- .element: class="fragment" -->Compute new messages (and state).
-- &shy;<!-- .element: class="fragment" -->Produce new messages.
-- &shy;<!-- .element: class="fragment" -->Advance offset (and state).
-- &shy;<!-- .element: class="fragment" -->Terminate.
-- &shy;<!-- .element: class="fragment" --> _Per key_.
 
 
 ----
