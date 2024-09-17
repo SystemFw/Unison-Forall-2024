@@ -573,14 +573,14 @@ sink ... c
 
 ### Pipeline stages
 
-![](img/hashedstages.svg)
+![](img/hash-stages.svg)
 
 
 ----
 
 ### Pipeline stages
 
-![](img/keystages.svg)
+![](img/key-stages.svg)
 
 ----
 
@@ -861,7 +861,7 @@ produce db klog k v =
 
 ### Producing: loglet contention
 
-loglet low contention diagram
+![](img/loglet-contention.svg)
 
 ----
 
