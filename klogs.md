@@ -436,7 +436,7 @@ Database.named : Text ->{Exception, Cloud} Database
 
 ```unison
 type LinearLog a = {
-  db: Database
+  db: Database,
   index: Table () Nat,
   values: Table Nat a,
 }
@@ -605,7 +605,7 @@ progress : Table (KLog.Id, Key) Offset
 progress : Table (KLog.Id, Key) (Offset, Any)
 ```
 
-- We add the extra **Any** to track state in **loop**.
+- &shy;<!-- .element: class="fragment" --> We add the extra **Any** to track state in **loop**.
 
 ----
 
@@ -672,7 +672,7 @@ produce db klog k v =
 stages: Map KLog.Id [Key ->{Remote} ()]
 stages = ...
 
-consumer myShard =
+worker myShard =
   lastSeen = read workerProgress myShard
   changedKeys = 
     LinearLog.from (read notifications myShard) lastSeen
@@ -683,7 +683,7 @@ consumer myShard =
    |> Remote.parMap (stage -> stage())
   write workerProgress (lastSeen + size changedKeys)
   sleep pollInterval
-  consumer myShard
+  worker myShard
 ```
 
 &shy;<!-- .element: class="fragment" -->`distinct` preserves correctness.
@@ -859,31 +859,26 @@ produce db klog k v =
 
 ----
 
-### Architecture: loglet contention
+### Loglet write contention
 
 ![](img/loglet-contention.svg)
 
 ----
 
-### Producing: notification contention
+### Notification write contention
 
-notifications high contention diagram
-
-----
-
-### Architecture: writers
-
-notifications low contention diagram
+![](img/shard-contention.svg)
 
 ----
 
-### Producing: contention
+### Dedicated writers
 
-notes
+![](img/writers.svg)
+
 
 ----
 
-### Architecture: in-memory notification
+### Communication fast path
 
 
 
@@ -891,13 +886,6 @@ notes
 ----
 ## Plan
 
-show loglets, notifications, progress
-show producer with loglet and notifications
-mention the hashing to keep sequencing
-show code for consumer (includes map of pipelines)
-show picture
-show producer optimisation and ability
-show pipeline
 show consumer optimisation?
 rebalancing/supervision/views/view changes
 leases/fence
