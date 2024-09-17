@@ -808,6 +808,57 @@ sink : (k -> v ->{Remote} ()) -> KLog k v -> ()
 ![](img/arch.svg)
 
 ----
+
+### Producing: exactly-once delivery
+
+  internal.loglets.add : Database -> Msg ->{Transaction, Exception, Random} Boolean
+  internal.loglets.add db = cases
+    Msg token k vs ->
+      use Transaction tryRead.tx write.tx
+      shouldWrite = match token with
+        None       -> true
+        Some token ->
+          match tryRead.tx idempotency token with
+            Some _ -> false
+            None   ->
+              write.tx idempotency token ()
+              true
+      when shouldWrite do
+        values = match tryRead.tx loglets k with
+          Some values -> values
+          None        ->
+            values = LinearLog.named db randomName()
+            write.tx loglets k values
+            values
+        vs |> map_ (v -> LinearLog.add.tx values v)
+      shouldWrite
+      
+----
+
+### Producing: contention
+
+loglet low contention diagram
+
+----
+
+### Producing: contention
+
+notifications high contention diagram
+
+----
+
+### Producing: contention
+
+notifications low contention diagram
+
+----
+
+### Producing: contention
+
+notes
+
+
+----
 ## Plan
 
 show loglets, notifications, progress
