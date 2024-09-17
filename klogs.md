@@ -712,6 +712,9 @@ compilePipeline db p =
 ### Stages: partition
 
 ```unison
+partition : (k -> v -> [k2]) -> KLog k v -> KLog k2 v
+```
+```unison
 go stages p = handle p() with cases
   { partition f (KLog in) -> resume } ->
     out = KLog.Id (hash (f, in, "p"))
@@ -730,7 +733,9 @@ go stages p = handle p() with cases
 ----
 
 ### Stages: merge
-
+```unison
+merge : [KLog k v] -> KLog k v
+```
 ```unison
 go stages p = handle p() with cases
   { merge logs -> resume } ->
@@ -753,6 +758,11 @@ go stages p = handle p() with cases
 ### Stages: loop
 
 ```unison
+loop
+  :  s -> (s -> k -> v ->{Remote} (s, [v2]))
+  -> KLog k v  -> KLog k v2
+```
+```unison
 go stages p = handle p() with cases
   { loop init f (KLog input) -> resume } ->
     out = KLog.Id (hash (f, input, "l"))
@@ -774,6 +784,9 @@ go stages p = handle p() with cases
 
 ### Stages: sink
 
+```unison
+sink : (k -> v ->{Remote} ()) -> KLog k v -> ()
+```
 ```unison
 { sink f (KLog input) -> resume } ->
   out = KLog.Id (hash (f, in, "s"))
