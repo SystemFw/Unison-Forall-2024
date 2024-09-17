@@ -811,6 +811,7 @@ sink : (k -> v ->{Remote} ()) -> KLog k v -> ()
 
 ### Producing: exactly-once delivery
 
+``` unison
   internal.loglets.add : Database -> Msg ->{Transaction, Exception, Random} Boolean
   internal.loglets.add db = cases
     Msg token k vs ->
@@ -833,6 +834,29 @@ sink : (k -> v ->{Remote} ()) -> KLog k v -> ()
         vs |> map_ (v -> LinearLog.add.tx values v)
       shouldWrite
       
+  type internal.data.IdempotencyToken = IdempotencyToken KLog.Id Key Offset      
+  
+            to =
+              loglets.get db k from |> (map cases
+                (offset, v) ->
+                  token = Some (IdempotencyToken out k offset)
+                  publish (Msg token (Key out (key k)) [v])
+                  offset) |> last
+  
+produce : Database -> KLog.Id -> k -> v ->{..} ()
+produce db klog k v =
+  key = Key klog (Any k)
+  transact db do
+    loglet = read loglets key
+    LinearLog.add loglet (Any v)
+  transact db do
+    shards = read shardCount ()
+    keyHash = murmurHash key
+    target = Shard (Nat.mod keyHash shards)
+    shard = read notifications target
+    LinearLog.add shard key
+```
+
 ----
 
 ### Producing: contention
