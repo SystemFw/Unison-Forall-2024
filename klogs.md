@@ -803,53 +803,28 @@ sink : (k -> v ->{Remote} ()) -> KLog k v -> ()
 
 ----
 
+### Exactly-once delivery
+
+- &shy;<!-- .element: class="fragment" -->Stages are triggered by sending messages.
+- &shy;<!-- .element: class="fragment" -->Correctness can be affected by re-triggering.
+- &shy;<!-- .element: class="fragment" -->We need to deliver messages exactly once.
+- &shy;<!-- .element: class="fragment" -->At-least once processing + idempotent producing.
+
+
+----
+
 ### Producing: exactly-once delivery
 
 ``` unison
-  internal.loglets.add : Database -> Msg ->{Transaction, Exception, Random} Boolean
-  internal.loglets.add db = cases
-    Msg token k vs ->
-      use Transaction tryRead.tx write.tx
-      shouldWrite = match token with
-        None       -> true
-        Some token ->
-          match tryRead.tx idempotency token with
-            Some _ -> false
-            None   ->
-              write.tx idempotency token ()
-              true
-      when shouldWrite do
-        values = match tryRead.tx loglets k with
-          Some values -> values
-          None        ->
-            values = LinearLog.named db randomName()
-            write.tx loglets k values
-            values
-        vs |> map_ (v -> LinearLog.add.tx values v)
-      shouldWrite
-      
-  type internal.data.IdempotencyToken = IdempotencyToken KLog.Id Key Offset      
-  
-            to =
-              loglets.get db k from |> (map cases
-                (offset, v) ->
-                  token = Some (IdempotencyToken out k offset)
-                  publish (Msg token (Key out (key k)) [v])
-                  offset) |> last
-  
-produce : Database -> KLog.Id -> k -> v ->{..} ()
-produce db klog k v =
-  key = Key klog (Any k)
-  transact db do
-    loglet = read loglets key
-    LinearLog.add loglet (Any v)
-  transact db do
-    shards = read shardCount ()
-    keyHash = murmurHash key
-    target = Shard (Nat.mod keyHash shards)
-    shard = read notifications target
-    LinearLog.add shard key
+type IdempotencyToken = 
+   IdempotencyToken KLog.Id Key Offset KLog.Id
+type Msg = Msg IdempotencyToken Key [Any] 
+
+idempotency: Table IdempotencyToken ()
 ```
+
+- &shy;<!-- .element: class="fragment" -->Write to loglets transactionally with token check.
+- &shy;<!-- .element: class="fragment" -->Notification write already idempotent.
 
 ---
 
