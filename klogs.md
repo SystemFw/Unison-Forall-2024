@@ -833,6 +833,13 @@ sink : (k -> v ->{Remote} ()) -> KLog k v -> ()
 ![](img/arch5.svg)
 
 ----
+
+
+### Topology
+
+![](img/arch6.svg)
+
+----
 ## Plan
 
 show loglets, notifications, progress
