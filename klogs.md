@@ -668,7 +668,7 @@ produce db klog k v =
 
 ### Worker
 
-```unison [1-2|1-4, 15|1-7, 15|1-10,15|1-11,15|1-12,15|1-13,15|]
+```unison [1-2|1-4, 14-15|1-7, 13-15|1-10,13-15|1-11,13-15|]
 stages: Map KLog.Id [Key ->{Remote} ()]
 stages = ...
 
