@@ -668,7 +668,7 @@ produce db klog k v =
 
 ### Worker
 
-```unison [1-2|]
+```unison [1-2|1-4, 15|1-7, 15|1-10,15|1-11,15|1-12,15|1-13,15|]
 stages: Map KLog.Id [Key ->{Remote, Produce} ()]
 stages = ...
 
@@ -678,12 +678,15 @@ consumer myShard =
     LinearLog.from (read notifications myShard) lastSeen
   changedKeys
    |> distinct
-   |> flatMap (k -> Mu)
-   |> parMap (k -> get computeStages k |> parMap runStage)
+   |> flatMap cases key @ (Key klog _) ->
+       lookup klog stages |> map (stage -> do stage key)
+   |> Remote.parMap (stage -> stage())
   write workerProgress (lastSeen + size changedKeys)
   sleep pollInterval
   consumer myShard
 ```
+
+&shy;<!-- .element: class="fragment" -->`distinct` preserves correctness.
 
 ----
 
