@@ -803,21 +803,21 @@ sink : (k -> v ->{Remote} ()) -> KLog k v -> ()
 
 ----
 
-### Exactly-once delivery
+### Exactly-once processing
 
-- &shy;<!-- .element: class="fragment" -->Stages are triggered by sending messages.
-- &shy;<!-- .element: class="fragment" -->Correctness can be affected by re-triggering.
+- &shy;<!-- .element: class="fragment" -->Stages are triggered by messages.
+- &shy;<!-- .element: class="fragment" -->Retriggering a stage can affect correctness.
 - &shy;<!-- .element: class="fragment" -->We need to deliver messages exactly once.
 - &shy;<!-- .element: class="fragment" -->At-least once processing + idempotent producing.
 
 
 ----
 
-### Producing: exactly-once delivery
+### Exactly-once delivery
 
 ``` unison
 type IdempotencyToken = 
-   IdempotencyToken KLog.Id Key Offset KLog.Id
+   IdempotencyToken KLog.Id Key Offset
 type Msg = Msg IdempotencyToken Key [Any] 
 
 idempotency: Table IdempotencyToken ()
