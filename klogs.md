@@ -803,12 +803,6 @@ sink : (k -> v ->{Remote} ()) -> KLog k v -> ()
 
 ----
 
-### Topology
-
-![](img/arch.svg)
-
-----
-
 ### Producing: exactly-once delivery
 
 ``` unison
@@ -857,21 +851,27 @@ produce db klog k v =
     LinearLog.add shard key
 ```
 
+---
+
+### Architecture
+
+![](img/arch.svg)
+
 ----
 
-### Producing: loglet contention
+### Architecture: loglet contention
 
 ![](img/loglet-contention.svg)
 
 ----
 
-### Producing: contention
+### Producing: notification contention
 
 notifications high contention diagram
 
 ----
 
-### Producing: contention
+### Architecture: writers
 
 notifications low contention diagram
 
@@ -880,6 +880,12 @@ notifications low contention diagram
 ### Producing: contention
 
 notes
+
+----
+
+### Architecture: in-memory notification
+
+
 
 
 ----
