@@ -859,7 +859,7 @@ produce db klog k v =
 
 ----
 
-### Producing: contention
+### Producing: loglet contention
 
 loglet low contention diagram
 
