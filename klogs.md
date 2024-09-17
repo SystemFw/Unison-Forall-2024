@@ -709,6 +709,27 @@ compilePipeline db p =
 
 ----
 
+### Stages: sink
+
+```unison
+sink : (k -> v ->{Remote} ()) -> KLog k v -> ()
+```
+```unison
+{ sink f (KLog input) -> resume } ->
+  out = KLog.Id (hash (f, in, "s"))
+  logic k v = f k v
+  stage k =
+    lastSeen = progress.get db out k
+    messages = loglets.get db k lastSeen
+    messages |> foreach_ (v  -> logic (key k) v)
+    seen = size messages
+    progress.update db out k seen
+  stages' = stages |> insert in stage
+  go stages' resume
+```
+
+----
+
 ### Stages: partition
 
 ```unison
@@ -782,26 +803,6 @@ go stages p = handle p() with cases
 
 ----
 
-### Stages: sink
-
-```unison
-sink : (k -> v ->{Remote} ()) -> KLog k v -> ()
-```
-```unison
-{ sink f (KLog input) -> resume } ->
-  out = KLog.Id (hash (f, in, "s"))
-  logic k v = f k v
-  stage k =
-    lastSeen = progress.get db out k
-    messages = loglets.get db k lastSeen
-    messages |> foreach_ (v  -> logic (key k) v)
-    seen = size messages
-    progress.update db out k seen
-  stages' = stages |> insert in stage
-  go stages' resume
-```
-
-----
 
 ### Exactly-once processing
 
