@@ -976,16 +976,28 @@ critical transactions.
 &shy;<!-- .element: class="fragment" -->This will _fence off_ old
 leaders that still think they hold the lease.
 
+---
+
+## And more!
+
+- Sending pipelines to workers.
+- Undeploying pipelines.
+- Shutting a highly available system down.
+- Access control.
+- Resource limits.
+- Etc.
 
 ---
-## Plan
 
-show consumer optimisation?
-rebalancing/supervision/views/view changes
-leases/fence
-other points: 
-deployment
-why double writes (frees you from having to size topics individually)
-shutdown
+## Distributed Systems are hard
 
-----
+&shy;<!-- .element: class="fragment" -->Unison Cloud lets you focus on the parts that matter.
+
+---
+
+## Thanks!
+
+- Reach out @SystemFw on the Unison Discord.
+- Blog at https://systemfw.org
+
+
