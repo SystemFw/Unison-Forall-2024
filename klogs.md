@@ -912,18 +912,14 @@ currentEpoch : Table () Epoch
 
 views : Table 
           Epoch
-          (Map WorkerId Thread, 
-           Map Partition Channel, 
-           Ref (Map WorkerId Duration))
+          (Map WorkerId Thread, -- Stopping workers
+           Map Shard Channel, -- Worker communication
+           Ref (Map WorkerId Duration)) -- Heartbeats
 ```
 
-Add code showing views
-
-----
-
-workers are spawned as part of a view
-upon failure, there is a view change
-a running worker never sees inconsistency
+- &shy;<!-- .element: class="fragment" -->Workers are spawned as part of a view.
+- &shy;<!-- .element: class="fragment" -->Failures trigger a _view change_.
+- &shy;<!-- .element: class="fragment" -->Workers always see a consistent view.
 
 ----
 
