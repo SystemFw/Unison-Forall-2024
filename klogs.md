@@ -904,6 +904,19 @@ idempotency: Table IdempotencyToken ()
 
 ----
 
+### Views
+
+```unison
+type Epoch = Epoch Nat
+currentEpoch : Table () Epoch
+
+views : Table 
+          Epoch
+          (Map WorkerId Thread, 
+           Map Partition Channel, 
+           Ref (Map WorkerId Duration))
+```
+
 Add code showing views
 
 ----
