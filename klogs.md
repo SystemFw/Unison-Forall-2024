@@ -872,7 +872,16 @@ idempotency: Table IdempotencyToken ()
 
 ---
 
-## Views
+## Failure
+
+Dealing with failure
+abstract out: supervisor
+views
+view change
+show supervisor thread
+mention 
+fast path?
+
 
 ---
 
