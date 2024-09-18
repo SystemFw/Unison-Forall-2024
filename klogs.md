@@ -737,7 +737,7 @@ sink : (k -> v ->{Remote} ()) -> KLog k v -> ()
 ```unison
 partition : (k -> v -> [k2]) -> KLog k v -> KLog k2 v
 ```
-```unison [|1,3-4]
+```unison [|1,3-4|]
 { partition f (KLog in) -> resume } ->
   out = KLog.Id (hash (f, in, "p"))
   logic k v = 
@@ -758,7 +758,7 @@ partition : (k -> v -> [k2]) -> KLog k v -> KLog k2 v
 ```unison
 merge : [KLog k v] -> KLog k v
 ```
-```unison [|1,3|1,4|1,11-14]
+```unison [|1,3|1,4|1,11-14|]
 { merge logs -> resume } ->
   ins = logs |> (map cases KLog id -> id)
   out = KLog.Id (hash (ins, "m"))
@@ -785,7 +785,7 @@ loop
   :  s -> (s -> k -> v ->{Remote} (s, [v2]))
   -> KLog k v  -> KLog k v2
 ```
-```unison [|1, 3-6|1, 7-8, 12|1, 7, 10]
+```unison [|1, 3-6|1, 7-8, 12|1, 7, 10|]
 { loop init f (KLog input) -> resume } ->
   out = KLog.Id (hash (f, input, "l"))
   logic s k v = 
