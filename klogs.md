@@ -876,28 +876,40 @@ idempotency: Table IdempotencyToken ()
 
 ![](img/writers.svg)
 
----
+----
 
-## Failure
+### Failure
 
 ![](img/failure.svg)
 
 
 ----
 
+### Supervisor
+
+![](img/supervisor.svg)
+
+----
+
+heartbeat
+----
+
 Dealing with failure
 abstract out: supervisor
-show failure detection?
+show heartbeats
 views
 view change
 show supervisor thread
 mention 
 fast path?
-
+then leases (can't use supervisor for that)
+fences
 
 ---
 
 ## Leases
+
+
 
 ---
 ## Plan
