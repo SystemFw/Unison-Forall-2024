@@ -347,7 +347,7 @@ detachAt (far pool() here()) do
 
 - &shy;<!-- .element: class="fragment" -->Locations are typed with the effects they support.
 - &shy;<!-- .element: class="fragment" -->Unison Cloud comes with a rich set of effects.
-- &shy;<!-- .element: class="fragment" -->We can sends programs to another node safely.
+- &shy;<!-- .element: class="fragment" -->We can send programs to another node safely.
 
 Notes:
 Ok, one more detail about Locations, they are typed with the set of
@@ -870,7 +870,15 @@ idempotency: Table IdempotencyToken ()
 ![](img/comm-fast.svg)
 
 
-----
+---
+
+## Views
+
+---
+
+## Leases
+
+---
 ## Plan
 
 show consumer optimisation?
@@ -882,14 +890,3 @@ why double writes (frees you from having to size topics individually)
 shutdown
 
 ----
- 
-# End
-
-Notes:
-
-latest workaround: just add &shy;<!-- .element: class="fragment" -->
-before your item content (when they contains links or anything non
-text).
-
-- &shy;<!-- .element: class="fragment" --> **This** is item one.
-- &shy;<!-- .element: class="fragment" --> This is [item](https://...) *two*.
