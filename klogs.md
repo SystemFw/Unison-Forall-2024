@@ -859,7 +859,9 @@ idempotency: Table IdempotencyToken ()
 
 ----
 
-### Communication fast path
+### Communication: safe path
+
+![](img/comm-safe.svg)
 
 
 
