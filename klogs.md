@@ -872,10 +872,22 @@ idempotency: Table IdempotencyToken ()
 
 ---
 
+## Dealing with failure
+
+![](img/writers.svg)
+
+---
+
 ## Failure
+
+![](img/failure.svg)
+
+
+----
 
 Dealing with failure
 abstract out: supervisor
+show failure detection?
 views
 view change
 show supervisor thread
