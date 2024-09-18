@@ -938,10 +938,43 @@ views : Table
 
 ---
 
-## Leases
+## Competing supervisors
 
-then leases (can't use supervisor for that)
-fences
+![](img/n-daemons.svg)
+
+----
+
+### Leases
+
+```unison
+leaderLease : Table () (SupervisorId, Nat, Duration)
+```
+- &shy;<!-- .element: class="fragment" -->Leader election + failure detection.
+- &shy;<!-- .element: class="fragment" -->Race to grab the lease via a transaction.
+- &shy;<!-- .element: class="fragment" -->If you have the lease, it's valid for duration **T**.
+- &shy;<!-- .element: class="fragment" -->If you don't, you try to steal it after duration **T**.
+- &shy;<!-- .element: class="fragment" -->Mutual exclusion* for a period of duration **T**.
+- &shy;<!-- .element: class="fragment" -->The leader renews its lease every **T**.
+- &shy;<!-- .element: class="fragment" -->Leader failure detected every **T**.
+
+----
+
+### Leases pros & cons
+
+- &shy;<!-- .element: class="fragment" -->Simple & powerful.
+- &shy;<!-- .element: class="fragment" -->Based on local elapsed time, not global wall-clock time.
+- &shy;<!-- .element: class="fragment" --> *Can violate mutual
+  exclusion due to GC pauses or other hiccups*.
+
+----
+
+### Fences
+
+Include a check on the lease value as a **fencing token** during
+critical transactions.
+
+&shy;<!-- .element: class="fragment" -->This will _fence off_ old
+leaders that still think they hold the lease.
 
 
 ---
