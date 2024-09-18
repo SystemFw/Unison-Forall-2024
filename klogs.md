@@ -923,14 +923,18 @@ views : Table
 
 ----
 
-diagram of worker supervisor thread
+![](img/view-worker.svg)
 
 ----
 
-views don't change in place
-view change can be resumed if failure happens
-fast path using thread interruption
-complex details
+### View change
+
+- &shy;<!-- .element: class="fragment" --> Increment epoch.
+- &shy;<!-- .element: class="fragment" -->Seal previous view before starting new one.
+- &shy;<!-- .element: class="fragment" -->Fast-path via thread interruption.
+- &shy;<!-- .element: class="fragment" -->Views don't change in place.
+- &shy;<!-- .element: class="fragment" -->View change can be resumed upon failure.
+- &shy;<!-- .element: class="fragment" -->Tricky details.
 
 ----
 
