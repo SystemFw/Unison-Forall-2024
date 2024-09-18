@@ -891,7 +891,38 @@ idempotency: Table IdempotencyToken ()
 
 ----
 
-heartbeat
+### Failure detection
+
+![](img/heartbeats.svg)
+
+
+----
+
+### Views & Epochs
+
+![](img/views.svg)
+
+----
+
+Add code showing views
+
+----
+
+workers are spawned as part of a view
+upon failure, there is a view change
+a running worker never sees inconsistency
+
+----
+
+diagram of worker supervisor thread
+
+----
+
+views don't change in place
+view change can be resumed if failure happens
+fast path using thread interruption
+complex details
+
 ----
 
 Dealing with failure
