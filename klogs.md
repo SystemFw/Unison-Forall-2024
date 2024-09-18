@@ -834,7 +834,7 @@ idempotency: Table IdempotencyToken ()
 
 ---
 
-### Architecture
+## Architecture
 
 ![](img/arch.svg)
 
@@ -970,8 +970,8 @@ leaderLease : Table () (SupervisorId, Nat, Duration)
 
 ### Fences
 
-Include a check on the lease value as a **fencing token** during
-critical transactions.
+&shy;<!-- .element: class="fragment" -->Include a check on the lease
+value as a **fencing token** during critical transactions.
 
 &shy;<!-- .element: class="fragment" -->This will _fence off_ old
 leaders that still think they hold the lease.
