@@ -870,8 +870,6 @@ idempotency: Table IdempotencyToken ()
 ![](img/comm-fast.svg)
 
 
-
-
 ----
 ## Plan
 
