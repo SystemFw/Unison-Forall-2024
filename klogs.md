@@ -692,19 +692,21 @@ worker myShard =
 
 ### Stages
 
-```unison
+```unison [1-4|1-4, 6,9|1-4, 6, 13|]
 compilePipeline 
   :  Database
   -> '{Pipeline} () 
   -> Map KLog.Id [Key ->{Remote} ()]
 compilePipeline db p =
   go stages p = handle p() with cases
-    { partition f (KLog in) -> resume } -> ...
+    { partition f (KLog in) -> resume } ->
+       ...
+       go stages' do resume (KLog out)
     { merge logs -> resume } -> ...
     { loop init f (KLog in) -> resume } -> ...
     { sink f (KLog in) -> resume } -> ...
     { a } -> stages
-  go data.Map.empty p
+  go Map.empty p
 ```
 
 ----
@@ -714,7 +716,7 @@ compilePipeline db p =
 ```unison
 sink : (k -> v ->{Remote} ()) -> KLog k v -> ()
 ```
-```unison
+```unison [1|1-2|1-3|1-9|1,4-5|1,4-6|1, 4-7|1,4-9|1, 4, 10|]
 { sink f (KLog input) -> resume } ->
   out = KLog.Id (hash (f, in, "s"))
   logic k v = f k v
@@ -735,20 +737,19 @@ sink : (k -> v ->{Remote} ()) -> KLog k v -> ()
 ```unison
 partition : (k -> v -> [k2]) -> KLog k v -> KLog k2 v
 ```
-```unison
-go stages p = handle p() with cases
-  { partition f (KLog in) -> resume } ->
-    out = KLog.Id (hash (f, in, "p"))
-    logic k v = 
-      f k v |> foreach_ (k2 -> publish out k2 v)
-    stage k =
-      lastSeen = progress.get db out k
-      messages = loglets.get db k lastSeen
-      messages |> foreach_ (v -> logic (key k) v)
-      seen = size messages
-      progress.update db out k seen
-    stages' = stages |> insert in stage
-    go stages' do resume (KLog out)
+```unison [|1,3-4]
+{ partition f (KLog in) -> resume } ->
+  out = KLog.Id (hash (f, in, "p"))
+  logic k v = 
+    f k v |> foreach_ (k2 -> publish out k2 v)
+  stage k =
+    lastSeen = progress.get db out k
+    messages = loglets.get db k lastSeen
+    messages |> foreach_ (v -> logic (key k) v)
+    seen = size messages
+    progress.update db out k seen
+  stages' = stages |> insert in stage
+  go stages' do resume (KLog out)
 ```
 
 ----
@@ -757,21 +758,22 @@ go stages p = handle p() with cases
 ```unison
 merge : [KLog k v] -> KLog k v
 ```
-```unison
-go stages p = handle p() with cases
-  { merge logs -> resume } ->
-    ins = logs |> (map cases KLog id -> id)
-    out = KLog.Id (hash (ins, "m"))
-    logic k v = publish out k v
-    stage k =
-      seen = progress.get db out k
-      messages = loglets.get db k lastSeen
-      messages |> foreach_ (v -> logic (key k) v)
-      seen = size messages
-      progress.update db out k seen
-    stages' = 
-      foldLeft (stages in -> insert in stage stages) stages ins
-    go stages' do resume (KLog out)
+```unison [|1,3|1,4|1,11-14]
+{ merge logs -> resume } ->
+  ins = logs |> (map cases KLog id -> id)
+  out = KLog.Id (hash (ins, "m"))
+  logic k v = publish out k v
+  stage k =
+    seen = progress.get db out k
+    messages = loglets.get db k lastSeen
+    messages |> foreach_ (v -> logic (key k) v)
+    seen = size messages
+    progress.update db out k seen
+  stages' = 
+    ins |> foldLeft
+      (stages in -> insert in stage stages) 
+      stages
+  go stages' do resume (KLog out)
 ```
 
 ----
@@ -783,22 +785,21 @@ loop
   :  s -> (s -> k -> v ->{Remote} (s, [v2]))
   -> KLog k v  -> KLog k v2
 ```
-```unison
-go stages p = handle p() with cases
-  { loop init f (KLog input) -> resume } ->
-    out = KLog.Id (hash (f, input, "l"))
-    logic s k v = 
-      (s', vs) = f s k v
-      vs |> foreach_ (v -> publish out k v)
-      s'
-    stage k =
-      (lastSeen, s) = progress.getWithState db out k init
-      messages = loglets db k lastSeen
-      s' = messages |> foldLeft (s v -> logic s (key k) v) s
-      seen = size messages
-      progress.updateWithState db out k s' seen
-    stages' = stages |> insert input stage
-    go stages' do resume (KLog out)
+```unison [|1, 3-6|1, 7-8, 12|1, 7, 10]
+{ loop init f (KLog input) -> resume } ->
+  out = KLog.Id (hash (f, input, "l"))
+  logic s k v = 
+    (s', vs) = f s k v
+    vs |> foreach_ (v -> publish out k v)
+    s'
+  stage k =
+    (lastSeen, s) = progress.getWithState db out k init
+    messages = loglets db k lastSeen
+    s' = messages |> foldLeft (s v -> logic s (key k) v) s
+    seen = size messages
+    progress.updateWithState db out k s' seen
+  stages' = stages |> insert input stage
+  go stages' do resume (KLog out)
 ```
 
 ----
@@ -816,7 +817,7 @@ go stages p = handle p() with cases
 
 ### Exactly-once delivery
 
-``` unison
+``` unison [1-2| 1-3| 1-4|1-5|1-8|1-9]
 type IdempotencyToken = 
    IdempotencyToken 
       KLog.Id -- Which stage
