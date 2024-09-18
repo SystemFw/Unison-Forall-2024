@@ -931,28 +931,17 @@ views : Table
 
 - &shy;<!-- .element: class="fragment" --> Increment epoch.
 - &shy;<!-- .element: class="fragment" -->Seal previous view before starting new one.
-- &shy;<!-- .element: class="fragment" -->Fast-path via thread interruption.
+- &shy;<!-- .element: class="fragment" -->Fast-path via remote thread interruption.
 - &shy;<!-- .element: class="fragment" -->Views don't change in place.
 - &shy;<!-- .element: class="fragment" -->View change can be resumed upon failure.
 - &shy;<!-- .element: class="fragment" -->Tricky details.
-
-----
-
-Dealing with failure
-abstract out: supervisor
-show heartbeats
-views
-view change
-show supervisor thread
-mention 
-fast path?
-then leases (can't use supervisor for that)
-fences
 
 ---
 
 ## Leases
 
+then leases (can't use supervisor for that)
+fences
 
 
 ---
