@@ -977,7 +977,7 @@ value during critical transactions as a **fencing token**.
 &shy;<!-- .element: class="fragment" -->This will _fence off_ old
 leaders that still think they hold the lease.
 
----
+----
 
 ## And more!
 
@@ -990,9 +990,29 @@ leaders that still think they hold the lease.
 
 ---
 
+## KLogs
+
+```unison
+KLogs.deploy do
+  Pipeline.merge [upper, lower]
+  |> Pipeline.partition (k _ -> [Text.toLowercase k])
+  |> Pipeline.loop 0 cases _ counter value ->
+       newCount = counter + value
+       (newCount, [newCount])
+  |> sink printCountJson
+```
+
+----
+
+### KLogs
+
+![](img/all.svg)
+
+----
+
 ## Distributed Systems are hard
 
-&shy;<!-- .element: class="fragment" -->Unison Cloud lets you focus on the parts that matter.
+&shy;<!-- .element: class="fragment" -->**Unison Cloud** lets you focus on the parts that matter.
 
 ---
 
