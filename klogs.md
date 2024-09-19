@@ -514,7 +514,8 @@ ability Pipeline where
 
 ### Loglets
 
-```unison [1|1-5|1,3,7|1,3,9-10]
+```unison [1-2|1-6|1-2,4,8|1-2,4,10-11]
+type KLog k v = KLog KLog.Id
 type KLog.Id = Id Bytes
 
 type Any = builtin
@@ -545,9 +546,9 @@ consumer k =
   sleep pollInterval
   consumer k
 ```
-- Polling works across restarts.
-- Offsets achieve at-least-once processing.
-- How are offsets stored?
+- &shy;<!-- .element: class="fragment" -->Polling works across restarts.
+- &shy;<!-- .element: class="fragment" -->Offsets achieve at-least-once processing.
+- &shy;<!-- .element: class="fragment" -->How are offsets stored?
 
 ----
 
@@ -971,7 +972,7 @@ leaderLease : Table () (SupervisorId, Nat, Duration)
 ### Fences
 
 &shy;<!-- .element: class="fragment" -->Include a check on the lease
-value as a **fencing token** during critical transactions.
+value during critical transactions as a **fencing token**.
 
 &shy;<!-- .element: class="fragment" -->This will _fence off_ old
 leaders that still think they hold the lease.
