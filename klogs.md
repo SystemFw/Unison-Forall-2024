@@ -1027,3 +1027,4 @@ TODO
 I have to rework the graphs about progress
 also say "A stage runs for each key of each input KLog.Id"
 which links to loglet
+step through "consuming loglets"
