@@ -577,6 +577,10 @@ sink ... c
 ![](img/hash-stages.svg)
 
 
+Notes:
+
+Stage <-> KLog.Id
+
 ----
 
 ### Pipeline stages
