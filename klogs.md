@@ -405,7 +405,7 @@ We can implement distributed systems by deploying a `Daemon` that spawns `Remote
 ### Storage
 
 - Typed key-value store.
-- Supports multi-key transactions.
+- Supports multi-key, multi-table transactions.
 - Transactions are Unison programs.
 - Can be used to build arbitrary datastructures.
 
@@ -532,7 +532,7 @@ loglets: Table Key (LinearLog Any)
 
 ### Consuming loglets
 
-```unison
+```unison [1|1-2|1-5|1-6|1-7|1-8|1-9|1-10|1-11|]
 loglets: Table Key (LinearLog Any)
 type Offset = Offset Nat
   
