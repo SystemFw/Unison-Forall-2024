@@ -587,13 +587,28 @@ Stage <-> KLog.Id
 
 ![](img/key-stages.svg)
 
+
+Notes:
+
+Stage running per key
+
+----
+
+### Pipeline stages
+
+![](img/loglet-stages.svg)
+
+Notes:
+
+Stage running per loglet
+
 ----
 
 ### Pipeline stages
 
 - &shy;<!-- .element: class="fragment" -->Each pipeline stage maps to an output **KLog.Id**.
 - &shy;<!-- .element: class="fragment" -->One or more **KLog.Id** are fed as input to a stage.
-- &shy;<!-- .element: class="fragment" -->There is a stage running for _each key_ of each input.
+- &shy;<!-- .element: class="fragment" -->A stage runs for _each key_ of each input **KLog.Id**.
 - &shy;<!-- .element: class="fragment" -->Running stages keep track of progress _per loglet_.
 
 
