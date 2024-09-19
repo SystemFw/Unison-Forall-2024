@@ -609,7 +609,8 @@ Stage running per loglet
 - &shy;<!-- .element: class="fragment" -->Each pipeline stage maps to an output **KLog.Id**.
 - &shy;<!-- .element: class="fragment" -->One or more **KLog.Id** are fed as input to a stage.
 - &shy;<!-- .element: class="fragment" -->A stage runs for _each key_ of each input **KLog.Id**.
-- &shy;<!-- .element: class="fragment" -->Running stages keep track of progress _per loglet_.
+- &shy;<!-- .element: class="fragment" -->One running stage per loglet.
+- &shy;<!-- .element: class="fragment" -->Running stages keep track of progress per loglet.
 
 
 ----
