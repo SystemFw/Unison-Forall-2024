@@ -642,7 +642,7 @@ progress : Table (KLog.Id, Key) (Offset, Any)
 
 - &shy;<!-- .element: class="fragment" -->Spawn a fixed number of workers.
 - &shy;<!-- .element: class="fragment" -->Write changed keys to a fixed number of logs.
-- &shy;<!-- .element: class="fragment" -->Map each worker to a log (shard).
+- &shy;<!-- .element: class="fragment" -->Map each worker to a log (notification shard).
 - &shy;<!-- .element: class="fragment" -->Workers host and invoke pipelines stages.
 - &shy;<!-- .element: class="fragment" -->One poll per worker.
 - &shy;<!-- .element: class="fragment" -->A pipeline stage only runs if it has work to do.
