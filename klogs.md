@@ -230,7 +230,7 @@ count.
 
 - &shy;<!-- .element: class="fragment" -->Computations can move across nodes.
 - &shy;<!-- .element: class="fragment" -->Deployments are just code.
-- &shy;<!-- .element: class="fragment" -->Transactional storage.
+- &shy;<!-- .element: class="fragment" -->Typed transactional storage.
 - &shy;<!-- .element: class="fragment" -->... and more!
 
 
