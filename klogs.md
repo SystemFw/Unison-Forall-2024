@@ -31,7 +31,7 @@ Systems design, and bringing it to life on Unison Cloud.
 
 ## Plan
 
-- Designing _a_ streaming engine.
+- Designing a streaming engine.
 - Introduction to Unison Cloud.
 - General techniques for distributed systems.
 
@@ -55,7 +55,6 @@ Let's get into it!
 ## KLogs
 
 - &shy;<!-- .element: class="fragment" --> A streaming engine for OLTP. *(Not OLAP or ETL).*
-- &shy;<!-- .element: class="fragment" --> *Roughly:* Kafka + a subset of Kafka-Streams.
 - &shy;<!-- .element: class="fragment" --> Built entirely on Unison Cloud.
 - &shy;<!-- .element: class="fragment" --> *Highly WIP and experimental*.
 
