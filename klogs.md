@@ -622,8 +622,8 @@ progress : Table (KLog.Id, Key) (Offset, Any)
 ## Shards and workers
 
 - &shy;<!-- .element: class="fragment" -->Spawn a fixed number of workers.
-- &shy;<!-- .element: class="fragment" -->Write changed keys into a fixed number of shards.
-- &shy;<!-- .element: class="fragment" -->Map each worker to a shard.
+- &shy;<!-- .element: class="fragment" -->Write changed keys to a fixed number of logs.
+- &shy;<!-- .element: class="fragment" -->Map each worker to a log (shard).
 - &shy;<!-- .element: class="fragment" -->Workers host and invoke pipelines stages.
 - &shy;<!-- .element: class="fragment" -->One poll per worker.
 - &shy;<!-- .element: class="fragment" -->A pipeline stage only runs if it has work to do.
@@ -717,7 +717,7 @@ compilePipeline db p =
 ```unison
 sink : (k -> v ->{Remote} ()) -> KLog k v -> ()
 ```
-```unison [1|1-2|1-3|1-9|1,4-5|1,4-6|1, 4-7|1,4-9|1, 4, 10|]
+```unison [1|1-2|1-3|1-9|1,4-5|1,4-6|1, 4-7|1,4-8|1,4-9|1, 4, 10|]
 { sink f (KLog input) -> resume } ->
   out = KLog.Id (hash (f, in, "s"))
   logic k v = f k v
@@ -1002,3 +1002,8 @@ leaders that still think they hold the lease.
 - Blog at https://systemfw.org
 
 
+Notes:
+TODO
+I have to rework the graphs about progress
+also say "A stage runs for each key of each input KLog.Id"
+which links to loglet
