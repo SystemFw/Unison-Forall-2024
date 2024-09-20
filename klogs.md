@@ -529,6 +529,14 @@ loglets: Table Key (LinearLog Any)
 
 ----
 
+### Loglets
+
+
+![](img/loglets.svg) <!-- .element width="55%" -->
+
+
+----
+
 ### Consuming loglets
 
 ```unison [1|1-2|1-5|1-6|1-7|1-8|1-9|1-10|1-11|]
