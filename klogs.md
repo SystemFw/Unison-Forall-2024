@@ -590,7 +590,7 @@ Stage <-> KLog.Id
 
 ----
 
-### Pipeline stages
+### Running stages
 
 ![](img/key-stages.svg)
 
