@@ -498,14 +498,14 @@ type KLog k v = KLog KLog.Id
 type KLog.Id = Id Bytes
 
 namedKLog : Text -> KLog k v
-namedKLog name = KLog (Id (blake2b_256 (name, "n")))
+namedKLog name = KLog (Id (blake2b_256 ("n", name)))
 
 ability Pipeline where
   partition : (k -> v -> [k2]) -> KLog k v -> KLog k2 v
   ...
   
 { Pipeline.partition f (KLog in) -> resume } ->
-   out = Id (blake2b_256 (f, in, "p"))
+   out = Id (blake2b_256 ("p", f, in))
    ...
 ```
 
@@ -752,7 +752,7 @@ sink : (k -> v ->{Remote} ()) -> KLog k v -> ()
 ```
 ```unison [1|1-2|1-3|1-9|1,4-5|1,4-6|1, 4-7|1,4-8|1,4-9|1, 4, 10|]
 { sink f (KLog input) -> resume } ->
-  out = KLog.Id (hash (f, in, "s"))
+  out = KLog.Id (hash ("s", f, in))
   logic k v = f k v
   stage k =
     lastSeen = progress.get db out k
@@ -773,7 +773,7 @@ partition : (k -> v -> [k2]) -> KLog k v -> KLog k2 v
 ```
 ```unison [|1,3-4|]
 { partition f (KLog in) -> resume } ->
-  out = KLog.Id (hash (f, in, "p"))
+  out = KLog.Id (hash ("p", f, in))
   logic k v = 
     f k v |> foreach_ (k2 -> publish out k2 v)
   stage k =
@@ -795,7 +795,7 @@ merge : [KLog k v] -> KLog k v
 ```unison [|1,3|1,4|1,11-14|]
 { merge logs -> resume } ->
   ins = logs |> (map cases KLog id -> id)
-  out = KLog.Id (hash (ins, "m"))
+  out = KLog.Id (hash ("m", ins))
   logic k v = publish out k v
   stage k =
     seen = progress.get db out k
@@ -821,7 +821,7 @@ loop
 ```
 ```unison [|1, 3-6|1, 7-8, 12|1, 7, 10|]
 { loop init f (KLog input) -> resume } ->
-  out = KLog.Id (hash (f, input, "l"))
+  out = KLog.Id (hash ("l", f, input))
   logic s k v = 
     (s', vs) = f s k v
     vs |> foreach_ (v -> publish out k v)
