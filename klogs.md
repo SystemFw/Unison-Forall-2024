@@ -895,13 +895,13 @@ idempotency: Table IdempotencyToken ()
 
 ### Communication: safe path
 
-![](img/comm-safe.svg)
+![](img/comm-safe.svg)  <!-- .element width="70%" -->
 
 ----
 
 ### Communication: fast path
 
-![](img/comm-fast.svg)
+![](img/comm-fast.svg) <!-- .element width="70%" -->
 
 
 ---
