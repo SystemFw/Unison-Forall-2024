@@ -511,7 +511,7 @@ ability Pipeline where
 
 ----
 
-### Loglets
+### KLogs and Loglets
 
 ```unison [1-2|1-6|1-2,4,8|1-2,4,10-11]
 type KLog k v = KLog KLog.Id
