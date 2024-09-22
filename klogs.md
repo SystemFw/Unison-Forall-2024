@@ -196,7 +196,7 @@ example = do
   pipeline = do
     Pipeline.merge [upper, lower]
     |> Pipeline.partition (k _ -> [Text.toLowercase k])
-    |> Pipeline.loop 0 cases word total count ->
+    |> Pipeline.loop 0 cases total word count ->
          newTotal = total + count
          (newTotal, [newTotal])
     |> sink printCountJson
